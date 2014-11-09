@@ -5,7 +5,7 @@ package genetic_algorithm
 type BinaryMutator struct {
 
 }
-func NewBinaryMutator(probability float64) MutatorInterface {
+func NewBinaryMutator(probability float64) *MutatorBase {
 	mutator := NewMutator(new(BinaryMutator), probability)
 
 	return mutator
@@ -13,5 +13,5 @@ func NewBinaryMutator(probability float64) MutatorInterface {
 func(mutator *BinaryMutator) MutateCromosome(chrom ChromosomeInterface, ind int) {
 	bc := chrom.(*BinaryChromosome)
 
-	bc.Genes[ind] = !bc.Genes[ind]
+	bc.genes[ind] = !bc.genes[ind]
 }

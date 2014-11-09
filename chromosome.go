@@ -5,8 +5,10 @@ import (
 	log "github.com/cihub/seelog"
 )
 
+type EmptyChromosomeConstructor func(genesLen int) ChromosomeInterface
+
 type ChromosomeInterface interface {
-	Size() int
+	Genes() GenesInterface
 	SetCost(float64)
 	Cost() float64
 	// Calcs fitness=(0,1] from normalized(0 - best case) cost.
@@ -35,4 +37,9 @@ func (c Chromosomes) String() string {
 		s += fmt.Sprintf("%v", c[i])
 	}
 	return s
+}
+
+type GenesInterface interface {
+	Len() int
+	Copy(genes GenesInterface, from1, from2, to2 int) int
 }

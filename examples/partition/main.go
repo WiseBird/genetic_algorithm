@@ -17,8 +17,10 @@ func cost(c ga.ChromosomeInterface) float64 {
 	sum := 0
 	prod := 1
 
-	for i := 0; i < len(bc.Genes); i++ {
-		if bc.Genes[i] {
+	genes := bc.Genes().(ga.BinaryGenes)
+
+	for i := 0; i < len(genes); i++ {
+		if genes[i] {
 			prod *= list[i]
 		} else {
 			sum += list[i]
@@ -28,10 +30,7 @@ func cost(c ga.ChromosomeInterface) float64 {
 	sumDiff := sum - finalSum
 	prodDiff := prod - finalProduct
 
-	cost := math.Sqrt(float64(sumDiff * sumDiff + prodDiff * prodDiff))
-	log.Debugf("Calced cost = %v", cost)
-
-	return cost
+	return math.Sqrt(float64(sumDiff * sumDiff + prodDiff * prodDiff))
 }
 
 func main() {
@@ -46,7 +45,7 @@ func main() {
 
 	weeder := ga.NewSimpleWeeder(weedRate)
 	selector := ga.NewRouletteWheelCostWeightingSelector()
-	breeder := ga.NewOnePointBinaryBreeder()
+	breeder := ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)
 	mutator := ga.NewBinaryMutator(mutationProb)
 
 	optimizer := ga.NewOptimizer(weeder, selector, breeder, mutator, cost)

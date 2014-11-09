@@ -4,24 +4,43 @@ import (
 	"fmt"
 )
 
+type BinaryGenes []bool
+func (b BinaryGenes) Len() int { return len(b) }
+func (b BinaryGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
+	bgenes, ok := genes.(BinaryGenes)
+	if !ok {
+		panic("Unexpected genes. Expected BinaryGenes")
+	}
+
+	return copy(b[from1:], bgenes[from2:to2])
+}
+
 type BinaryChromosome struct {
 	*ChromosomeBase
-	Genes []bool
+	genes BinaryGenes
 }
-func NewBinaryChromosome(genes []bool) *BinaryChromosome {
+func NewBinaryChromosome(genes BinaryGenes) *BinaryChromosome {
 	chrom := new(BinaryChromosome)
 
 	chrom.ChromosomeBase = NewChromosomeBase()
-	chrom.Genes = genes
+	chrom.genes = genes
 
 	return chrom
 }
-func (chrom *BinaryChromosome) Size() int {
-	return len(chrom.Genes)
+func NewEmptyBinaryChromosome(genesLen int) ChromosomeInterface {
+	chrom := new(BinaryChromosome)
+
+	chrom.ChromosomeBase = NewChromosomeBase()
+	chrom.genes = make(BinaryGenes, genesLen)
+
+	return chrom
+}
+func (chrom *BinaryChromosome) Genes() GenesInterface {
+	return chrom.genes
 }
 func (chrom *BinaryChromosome) String() string {
 	genes := ""
-	for _, b := range chrom.Genes {
+	for _, b := range chrom.genes {
 		if b {
 			genes += "1"
 		} else {

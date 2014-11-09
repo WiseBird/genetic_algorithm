@@ -5,46 +5,52 @@ import (
 	log "github.com/cihub/seelog"
 )
 
-type OnePointBinaryBreeder struct {
+type OnePointBreeder struct {
+	chromConstr EmptyChromosomeConstructor
 }
-func NewOnePointBinaryBreeder() *OnePointBinaryBreeder {
-	var breeder *OnePointBinaryBreeder
+func NewOnePointBreeder(chromConstr EmptyChromosomeConstructor) *OnePointBreeder {
+	breeder := new(OnePointBreeder)
+
+	breeder.chromConstr = chromConstr
 
 	return breeder
 }
 
-func (breeder *OnePointBinaryBreeder) ParentsCount() int {
+func (breeder *OnePointBreeder) ParentsCount() int {
 	return 2
 }
 
-func (breeder *OnePointBinaryBreeder) Crossover(parents Chromosomes) Chromosomes {
+func (breeder *OnePointBreeder) Crossover(parents Chromosomes) Chromosomes {
 	if len(parents) != breeder.ParentsCount() {
 		panic("Incorrect parents count")
 	}
 
-	bp1 := parents[0].(*BinaryChromosome)
-	bp2 := parents[1].(*BinaryChromosome)
+	p1 := parents[0]
+	p2 := parents[1]
 
-	if bp1.Size() != bp2.Size() {
+	if p1.Genes().Len() != p2.Genes().Len() {
 		panic("Breeder do not support different chromosome size")
 	}
 
-	bitSize := bp1.Size()
+	genesLen := p1.Genes().Len()
 
-	bitToCross := rand.Intn(bitSize - 1) + 1;
+	bitToCross := rand.Intn(genesLen - 1) + 1;
 	log.Debugf("Cross on %v\n", bitToCross)
 
-	c1Genes := make([]bool, bitSize)
-	copy(c1Genes, bp1.Genes[:bitToCross])
-	copy(c1Genes[bitToCross:], bp2.Genes[bitToCross:])
-
-	c1 := NewBinaryChromosome(c1Genes)
-
-	c2Genes := make([]bool, bitSize)
-	copy(c2Genes, bp2.Genes[:bitToCross])
-	copy(c2Genes[bitToCross:], bp1.Genes[bitToCross:])
-
-	c2 := NewBinaryChromosome(c2Genes)
+	c1, c2 := breeder.crossover(p1, p2, bitToCross)
 
 	return Chromosomes{c1, c2}
+}
+func (breeder *OnePointBreeder) crossover(p1, p2 ChromosomeInterface, bitToCross int) (c1, c2 ChromosomeInterface) {
+	genesLen := p1.Genes().Len()
+
+	c1 = breeder.chromConstr(genesLen)
+	c1.Genes().Copy(p1.Genes(), 0, 0, bitToCross)
+	c1.Genes().Copy(p2.Genes(), bitToCross, bitToCross, genesLen)
+
+	c2 = breeder.chromConstr(genesLen)
+	c2.Genes().Copy(p2.Genes(), 0, 0, bitToCross)
+	c2.Genes().Copy(p1.Genes(), bitToCross, bitToCross, genesLen)
+
+	return
 }
