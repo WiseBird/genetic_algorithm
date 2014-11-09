@@ -1,0 +1,5 @@
+<seelog minlevel="info">
+	<outputs>
+		<file path="log.log"/>
+	</outputs>
+</seelog>
