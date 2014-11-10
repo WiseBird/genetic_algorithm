@@ -1,4 +1,4 @@
-<seelog minlevel="info">
+<seelog type="sync" minlevel="info">
 	<outputs>
 		<file path="log.log"/>
 	</outputs>

@@ -13,7 +13,7 @@ type SelectorBase struct {
 	selectManyUnique bool
 }
 
-// Interface for SelectorBase's subclasses to implement
+// SelectorBase's virtual methods
 type SelectorBaseVirtualMInterface interface {
 	Prepare(Chromosomes)
 	Select() ChromosomeInterface

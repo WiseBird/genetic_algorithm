@@ -13,14 +13,15 @@ const (
 	MutatorExactCountType = 1
 )
 
+// Base class for mutators
 type MutatorBase struct {
 	MutatorBaseVirtualMInterface
 
-	Probability float64
-	Elitism int
-	Type int
+	probability float64
+	elitism int
+	kind int
 }
-
+// MutatorBase's virtual methods
 type MutatorBaseVirtualMInterface interface {
 	MutateCromosome(chrom ChromosomeInterface, ind int)
 }
@@ -29,39 +30,39 @@ func NewMutator(virtual MutatorBaseVirtualMInterface, probability float64) *Muta
 	mutator := new(MutatorBase)
 
 	mutator.MutatorBaseVirtualMInterface = virtual
-	mutator.Probability = probability
-	mutator.Elitism = 1
-	mutator.Type = MutatorOneByOneType
+	mutator.probability = probability
+	mutator.elitism = 1
+	mutator.kind = MutatorOneByOneType
 
 	return mutator
 }
 // Will roll for every element in chromosome, mutate it if success
 func (mutator *MutatorBase) OneByOne() *MutatorBase {
-	mutator.Type = MutatorOneByOneType
+	mutator.kind = MutatorOneByOneType
 	return mutator
 }
 // Will mutete exactly (Npop * Nel * P) elements
 func (mutator *MutatorBase) ExactCount() *MutatorBase {
-	mutator.Type = MutatorExactCountType
+	mutator.kind = MutatorExactCountType
 	return mutator
 }
-// The best chromosome can't be mutated
+// The best chromosome[s] can't be mutated
 func (mutator *MutatorBase) WithElitism(count int) *MutatorBase {
 	if count < 0 {
 		panic("Elitism can't be negative")
 	}
 
-	mutator.Elitism = count
+	mutator.elitism = count
 	return mutator
 }
 // All chromosomes can be mutated
 func (mutator *MutatorBase) WithoutElitism() *MutatorBase {
-	mutator.Elitism = 0
+	mutator.elitism = 0
 	return mutator
 }
 
 func (mutator *MutatorBase) Mutate(population Chromosomes) {
-	switch mutator.Type {
+	switch mutator.kind {
 		case MutatorOneByOneType:
 			mutator.mutateOneByOne(population)
 		case MutatorExactCountType:
@@ -71,12 +72,12 @@ func (mutator *MutatorBase) Mutate(population Chromosomes) {
 func (mutator *MutatorBase) mutateOneByOne(population Chromosomes) {
 	m := 0
 	for ind, chrom := range population {
-		if mutator.Elitism > ind {
+		if mutator.elitism > ind {
 			continue
 		}
 
 		for i := 0; i < chrom.Genes().Len(); i++ {
-			if rand.Float64() > mutator.Probability {
+			if rand.Float64() > mutator.probability {
 				continue
 			}
 
@@ -96,12 +97,12 @@ func (mutator *MutatorBase) mutateExactCount(population Chromosomes) {
 
 	genesLen := population[0].Genes().Len()
 
-	chromsToMutate := popLen - mutator.Elitism
-	elementsToMutate := int(math.Floor(mutator.Probability * float64(chromsToMutate * genesLen)))
+	chromsToMutate := popLen - mutator.elitism
+	elementsToMutate := int(math.Floor(mutator.probability * float64(chromsToMutate * genesLen)))
 	log.Debugf("ElemsToMutate: %d", elementsToMutate)
 
 	for i := 0; i < elementsToMutate; i++ {
-		chromInd := rand.Intn(popLen - mutator.Elitism) + mutator.Elitism;
+		chromInd := rand.Intn(popLen - mutator.elitism) + mutator.elitism;
 		elemInd := rand.Intn(genesLen)
 
 		log.Tracef("Mutate: %v, at %d\n", population[chromInd], elemInd)

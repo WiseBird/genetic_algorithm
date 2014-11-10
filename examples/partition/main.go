@@ -43,15 +43,18 @@ func main() {
 	mutationProb := 0.2
 	iterations := 100
 
+	initializer := ga.BinaryRandomInitializerInstance
 	weeder := ga.NewSimpleWeeder(weedRate)
 	selector := ga.NewRouletteWheelCostWeightingSelector()
 	breeder := ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)
 	mutator := ga.NewBinaryMutator(mutationProb)
+	statisticsConstructor := ga.StatisticsDefaultConstructor
+	stopCriterion := ga.NewStopCriterionDefault().
+		MaxIterations(iterations).
+		MinCost(0)
 
-	optimizer := ga.NewOptimizer(weeder, selector, breeder, mutator, cost)
-
-	population := ga.BinaryRandomInitializerInstance.Init(popSize, chromSize)
-	optimizer.Optimize(population, iterations)
+	optimizer := ga.NewOptimizer(initializer, weeder, selector, breeder, mutator, cost, statisticsConstructor, popSize, chromSize)
+	optimizer.Optimize(stopCriterion)
 }
 
 func setupLogger() {

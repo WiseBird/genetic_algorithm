@@ -14,40 +14,53 @@ func init() {
 }
 
 type Optimizer struct {
+	Initializer InitializerInterface
 	Weeder WeederInterface
 	Selector SelectorInterface
 	Breeder BreederInterface
 	Mutator MutatorInterface
 	CostFunction CostFunction
+	StatisticsConstructor StatisticsConstructor
 
-	Population Chromosomes
-	popSize int
+	PopSize int
+	ChromSize int
+
+	population Chromosomes
 }
-func NewOptimizer(weeder WeederInterface, selector SelectorInterface, breeder BreederInterface, mutator MutatorInterface,
-		cost CostFunction) *Optimizer {
+func NewOptimizer(initializer InitializerInterface, weeder WeederInterface, selector SelectorInterface, breeder BreederInterface,
+		mutator MutatorInterface, cost CostFunction, statisticsConstructor StatisticsConstructor, popSize, chromSize int) *Optimizer {
 
 	optimizer := &Optimizer{}
 
+	optimizer.Initializer = initializer
 	optimizer.Weeder = weeder
 	optimizer.Selector = selector
 	optimizer.Breeder = breeder
 	optimizer.Mutator = mutator
 	optimizer.CostFunction = cost
+	optimizer.StatisticsConstructor = statisticsConstructor
+
+	optimizer.PopSize = popSize
+	optimizer.ChromSize = chromSize
 
 	return optimizer
 }
 
-func (optimizer *Optimizer) Optimize(population Chromosomes, iterations int) {
-	optimizer.Population = population
-	optimizer.popSize = len(optimizer.Population)
+func (optimizer *Optimizer) Optimize(stopCriterion StopCriterionInterface) (ChromosomeInterface, StatisticsInterface) {
+	statistics := optimizer.StatisticsConstructor()
+	stopCriterion.Setup(statistics)
+	statistics.Start()
+
+	optimizer.population = optimizer.Initializer.Init(optimizer.PopSize, optimizer.ChromSize)
 
 	iter := 0
 	for ;; {
 		log.Infof("ITERATION %d\n\n", iter)
 
 		optimizer.sort()
+		statistics.OnInteration(optimizer.population)
 
-		if iter >= iterations {
+		if stopCriterion.ShouldStop(statistics) {
 			break
 		}
 
@@ -57,27 +70,28 @@ func (optimizer *Optimizer) Optimize(population Chromosomes, iterations int) {
 
 		iter++
 	}
+
+	statistics.End()
+	return optimizer.population[0], statistics
 }
 
 func (optimizer *Optimizer) sort() {
-	optimizer.Population.SetCost(optimizer.CostFunction)
-	sort.Sort(optimizer.Population)
+	optimizer.population.SetCost(optimizer.CostFunction)
+	sort.Sort(optimizer.population)
 
-	log.Infof("Best: %v\n", optimizer.Population[0])
-	log.Debugf("Population:\n%v\n\n", optimizer.Population)
-	log.Flush()
+	log.Infof("Best: %v\n", optimizer.population[0])
+	log.Debugf("Population:\n%v\n\n", optimizer.population)
 }
 func (optimizer *Optimizer) weed() {
-	optimizer.Population = optimizer.Weeder.Weed(optimizer.Population)
+	optimizer.population = optimizer.Weeder.Weed(optimizer.population)
 
-	log.Tracef("Weeded population:\n%v\n\n", optimizer.Population)
-	log.Flush()
+	log.Tracef("Weeded population:\n%v\n\n", optimizer.population)
 }
 
 func (optimizer *Optimizer) breed() {
-	newPopulation := optimizer.Population
+	newPopulation := optimizer.population
 
-	optimizer.Selector.Prepare(optimizer.Population)
+	optimizer.Selector.Prepare(optimizer.population)
 
 	for ;; {
 		chromsToCross := optimizer.Selector.SelectMany(optimizer.Breeder.ParentsCount())
@@ -90,9 +104,8 @@ func (optimizer *Optimizer) breed() {
 		for i := 0; i < len(children); i++ {
 			newPopulation = append(newPopulation, children[i])
 
-			if len(newPopulation) == optimizer.popSize {
-				log.Flush()
-				optimizer.Population = newPopulation
+			if len(newPopulation) == optimizer.PopSize {
+				optimizer.population = newPopulation
 				return
 			}
 		}
@@ -101,5 +114,5 @@ func (optimizer *Optimizer) breed() {
 }
 
 func (optimizer *Optimizer) mutate() {
-	optimizer.Mutator.Mutate(optimizer.Population)
+	optimizer.Mutator.Mutate(optimizer.population)
 }
