@@ -54,7 +54,10 @@ func main() {
 		MaxMinCostAge(15)
 
 	optimizer := ga.NewOptimizer(initializer, weeder, selector, breeder, mutator, cost, popSize, chromSize)
-	optimizer.Optimize(stopCriterion)
+	_, statistics := optimizer.Optimize(stopCriterion)
+	stats := statistics.(ga.StatisticsDefaultInterface)
+
+	log.Infof("Duration: %v", stats.Duration())
 }
 
 func setupLogger() {

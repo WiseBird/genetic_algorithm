@@ -9,15 +9,13 @@ import (
 type SelectorBase struct {
 	SelectorBaseVirtualMInterface
 
-	populationLen int
+	population Chromosomes
 	selectManyUnique bool
 }
 
 // SelectorBase's virtual methods
 type SelectorBaseVirtualMInterface interface {
-	Prepare(Chromosomes)
-	Select() ChromosomeInterface
-	//SelectExcept(map[int]bool) ChromosomeInterface
+	SelectInd() int
 }
 
 // Constructor for SelectorBase
@@ -39,9 +37,7 @@ func (selector *SelectorBase) SelectManyAreUnique(value bool) *SelectorBase {
 func (selector *SelectorBase) Prepare(population Chromosomes) {
 	log.Tracef("Prepare Population=%d\n", len(population))
 
-	selector.populationLen = len(population)
-
-	selector.SelectorBaseVirtualMInterface.Prepare(population)
+	selector.population = population
 }
 
 func (selector *SelectorBase) SelectMany(count int) Chromosomes {
@@ -51,42 +47,32 @@ func (selector *SelectorBase) SelectMany(count int) Chromosomes {
 		panic("Count must be greater than 0")
 	}
 
-	if selector.populationLen < count && selector.selectManyUnique {
-		panic(fmt.Sprintf("Cant select %d unique chroms from %d chroms", count, selector.populationLen))
+	if len(selector.population) < count && selector.selectManyUnique {
+		panic(fmt.Sprintf("Cant select %d unique chroms from %d chroms", count, len(selector.population)))
 	}
 
 	chroms := make(Chromosomes, count)
-	//selected := make(map[int]bool, count)
+	selected := make(map[int]bool, count)
 
 	for i := 0; i < count; i++ {
-		/*var chrom ChromosomeInterface
-		if selector.selectManyUnique {
-			chrom = selector.SelectorBaseVirtualMInterface.SelectExcept(selected)
-			selected[]
-		} else {
-			chrom = selector.SelectorBaseVirtualMInterface.Select()
-		}*/
-		
-		chrom := selector.SelectorBaseVirtualMInterface.Select()
-		if selector.selectManyUnique {
+		ind := selector.SelectorBaseVirtualMInterface.SelectInd()
+		if selector.selectManyUnique && selected[ind] {
+			j := 1
 			for ;; {
-				unique := true
-				for j := 0; j < i; j++ {
-					if chroms[j] == chrom {
-
-						log.Tracef("Collision try another")
-
-						unique = false
-						break
-					}
-				}
-				if unique {
+				if !selected[ind-j] && ind-j >= 0 {
+					ind = ind-j
 					break
 				}
-
-				chrom = selector.SelectorBaseVirtualMInterface.Select()
+				if !selected[ind-j] && ind+j < len(selector.population) {
+					ind = ind+j
+					break
+				}
+				j++
 			}
 		}
+
+		selected[ind] = true
+		chrom := selector.population[ind]
 
 		log.Debugf("Parent[%d] - %v", i, chrom)
 		chroms[i] = chrom

@@ -59,7 +59,7 @@ func (optimizer *Optimizer) Optimize(stopCriterion StopCriterionInterface) (Chro
 
 	iter := 0
 	for ;; {
-		log.Infof("ITERATION %d\n\n", iter)
+		log.Infof("ITERATION %d", iter)
 
 		optimizer.sort()
 		statistics.OnInteration(optimizer.population)
@@ -76,6 +76,7 @@ func (optimizer *Optimizer) Optimize(stopCriterion StopCriterionInterface) (Chro
 	}
 
 	statistics.End()
+
 	return optimizer.population[0], statistics
 }
 
@@ -83,7 +84,7 @@ func (optimizer *Optimizer) sort() {
 	optimizer.population.SetCost(optimizer.CostFunction)
 	sort.Sort(optimizer.population)
 
-	log.Infof("Best: %v\n", optimizer.population[0])
+	log.Infof("Best: %v", optimizer.population[0])
 	log.Debugf("Population:\n%v\n\n", optimizer.population)
 }
 func (optimizer *Optimizer) weed() {

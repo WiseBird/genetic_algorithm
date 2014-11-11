@@ -28,20 +28,12 @@ func (_m *MockSelectorBaseVirtualMInterface) EXPECT() *_MockSelectorBaseVirtualM
 	return _m.recorder
 }
 
-func (_m *MockSelectorBaseVirtualMInterface) Prepare(_param0 Chromosomes) {
-	_m.ctrl.Call(_m, "Prepare", _param0)
-}
-
-func (_mr *_MockSelectorBaseVirtualMInterfaceRecorder) Prepare(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Prepare", arg0)
-}
-
-func (_m *MockSelectorBaseVirtualMInterface) Select() ChromosomeInterface {
-	ret := _m.ctrl.Call(_m, "Select")
-	ret0, _ := ret[0].(ChromosomeInterface)
+func (_m *MockSelectorBaseVirtualMInterface) SelectInd() int {
+	ret := _m.ctrl.Call(_m, "SelectInd")
+	ret0, _ := ret[0].(int)
 	return ret0
 }
 
-func (_mr *_MockSelectorBaseVirtualMInterfaceRecorder) Select() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Select")
+func (_mr *_MockSelectorBaseVirtualMInterfaceRecorder) SelectInd() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectInd")
 }

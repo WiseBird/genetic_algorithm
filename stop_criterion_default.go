@@ -1,5 +1,9 @@
 package genetic_algorithm
 
+import (
+	log "github.com/cihub/seelog"
+)
+
 type StopCriterionDefault struct {
 	maxIterations int
 	maxIterationsCrit bool
@@ -53,12 +57,15 @@ func (criterion *StopCriterionDefault) ShouldStop(statistics StatisticsInterface
 	}
 
 	if criterion.maxIterationsCrit && stats.Iterations() >= criterion.maxIterations {
+		log.Info("Stop by max iteration")
 		return true
 	}
 	if criterion.minCostCrit && stats.MinCost() <= criterion.minCost {
+		log.Info("Stop by min cost")
 		return true
 	}
 	if criterion.maxMinCostAgeCrit && stats.MinCostAge() >= criterion.maxMinCostAge {
+		log.Info("Stop by max min cost's age")
 		return true
 	}
 

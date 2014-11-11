@@ -21,7 +21,6 @@ func (s *SelectorSuite) Test_SelectorBase_SelectMany_Should_Panic_UniqueCountBig
 	defer ctrl.Finish()
 
 	vm := NewMockSelectorBaseVirtualMInterface(ctrl)
-	vm.EXPECT().Prepare(pop)
 
 	selector := NewSelectorBase(vm).SelectManyAreUnique(true)
 

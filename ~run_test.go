@@ -10,3 +10,7 @@ func Test(t *testing.T) {
 	log.ReplaceLogger(log.Disabled)
 	TestingT(t)
 }
+
+/*
+mockgen -source="selector_base.go" -destination="~mock_selector_base_vm.go" -package="genetic_algorithm"
+*/
