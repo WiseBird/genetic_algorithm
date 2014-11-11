@@ -28,6 +28,17 @@ func (c Chromosomes) SetCost(cost CostFunction) {
 		chrom.SetCost(cost(chrom))
 	}
 }
+func (c Chromosomes) MeanCost() float64 {
+	if len(c) == 0 {
+		return 0
+	}
+
+	var sum float64
+	for _, chrom := range c {
+		sum += chrom.Cost()
+	}
+	return sum / float64(len(c))
+}
 func (c Chromosomes) String() string {
 	s := ""
 	for i := 0; i < len(c); i++ {

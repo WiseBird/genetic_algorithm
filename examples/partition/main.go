@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	list = []int{1,2,3,4,5,6,7,8,9,10,11,12}
-	finalSum = 49
-	finalProduct = 2520
+	list = []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}
+	finalSum = 178
+	finalProduct = 3120
 )
 
 func cost(c ga.ChromosomeInterface) float64 {
@@ -27,10 +27,10 @@ func cost(c ga.ChromosomeInterface) float64 {
 		}
 	}
 
-	sumDiff := sum - finalSum
-	prodDiff := prod - finalProduct
+	sumDiff := float64(sum - finalSum)
+	prodDiff := float64(prod - finalProduct)
 
-	return math.Sqrt(float64(sumDiff * sumDiff + prodDiff * prodDiff))
+	return math.Abs(sumDiff) + math.Abs(prodDiff * prodDiff)
 }
 
 func main() {
@@ -48,12 +48,12 @@ func main() {
 	selector := ga.NewRouletteWheelCostWeightingSelector()
 	breeder := ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)
 	mutator := ga.NewBinaryMutator(mutationProb)
-	statisticsConstructor := ga.StatisticsDefaultConstructor
 	stopCriterion := ga.NewStopCriterionDefault().
 		MaxIterations(iterations).
-		MinCost(0)
+		MinCost(0).
+		MaxMinCostAge(15)
 
-	optimizer := ga.NewOptimizer(initializer, weeder, selector, breeder, mutator, cost, statisticsConstructor, popSize, chromSize)
+	optimizer := ga.NewOptimizer(initializer, weeder, selector, breeder, mutator, cost, popSize, chromSize)
 	optimizer.Optimize(stopCriterion)
 }
 

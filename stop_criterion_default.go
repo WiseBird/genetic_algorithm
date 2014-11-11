@@ -6,6 +6,9 @@ type StopCriterionDefault struct {
 
 	minCost float64
 	minCostCrit bool
+
+	maxMinCostAge int
+	maxMinCostAgeCrit bool
 }
 func NewStopCriterionDefault() *StopCriterionDefault {
 	criterion := new(StopCriterionDefault)
@@ -26,17 +29,36 @@ func (criterion *StopCriterionDefault) MinCost(value float64) *StopCriterionDefa
 	criterion.minCost = value
 	return criterion
 }
+func (criterion *StopCriterionDefault) MaxMinCostAge(value int) *StopCriterionDefault {
+	criterion.maxMinCostAgeCrit = true
+	criterion.maxMinCostAge = value
+	return criterion
+}
+
 func (criterion *StopCriterionDefault) Setup(statistics StatisticsInterface) {
-	if criterion.minCostCrit {
-		statistics.TrackMinCost()
+	stats, ok := statistics.(StatisticsDefaultInterface)
+	if !ok {
+		panic("Method expects StatisticsDefaultInterface")
+	}
+
+	if criterion.maxMinCostAgeCrit {
+		stats.TrackMinCostAge()
 	}
 }
 
 func (criterion *StopCriterionDefault) ShouldStop(statistics StatisticsInterface) bool {
-	if criterion.maxIterationsCrit && statistics.Iterations() >= criterion.maxIterations {
+	stats, ok := statistics.(StatisticsDefaultInterface)
+	if !ok {
+		panic("Method expects StatisticsDefaultInterface")
+	}
+
+	if criterion.maxIterationsCrit && stats.Iterations() >= criterion.maxIterations {
 		return true
 	}
-	if criterion.minCostCrit && statistics.MinCost() <= criterion.minCost {
+	if criterion.minCostCrit && stats.MinCost() <= criterion.minCost {
+		return true
+	}
+	if criterion.maxMinCostAgeCrit && stats.MinCostAge() >= criterion.maxMinCostAge {
 		return true
 	}
 

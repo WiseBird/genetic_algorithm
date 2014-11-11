@@ -5,6 +5,43 @@ import (
 	//log "github.com/cihub/seelog"
 )
 
+type StatisticsDefaultInterface interface {
+	StatisticsInterface
+
+	// Returns time elapsed from start to end.
+	// If optimization are in progress then returns time elapsed from start.
+	Duration() time.Duration
+
+	Iterations() int
+
+	// Min cost for last iteration
+	MinCost() float64
+	// Min cost for each iteration
+	// Len would be `Iterations() + 1` because of initial value
+	MinCosts() []float64
+	// Number of iterations during which the value remains unchanged 
+	MinCostAge() int
+
+	// Mean cost of last iteration
+	MeanCost() float64
+	// Mean cost of each iteration
+	// Len would be `Iterations() + 1` because of initial value
+	MeanCosts() []float64
+
+	// Worst cost for last iteration
+	WorstCost() float64
+	// Worst cost for each iteration
+	// Len would be `Iterations() + 1` because of initial value
+	WorstCosts() []float64
+
+	TrackMinCosts()
+	TrackMinCostAge()
+	TrackMeanCost()
+	TrackMeanCosts()
+	TrackWorstCost()
+	TrackWorstCosts()
+}
+
 // Default realization of StatisticsInterface
 type StatisticsDefault struct {
 	started bool
@@ -24,31 +61,40 @@ type StatisticsDefault struct {
 	worstCost float64
 	worstCosts []float64
 
-	trackMinCost bool
 	trackMinCosts bool
-	trackMinAge bool
+	trackMinCostAge bool
 	trackMeanCost bool
 	trackMeanCosts bool
 	trackWorstCost bool
 	trackWorstCosts bool
 }
-func NewStatisticsDefault() *StatisticsDefault {
+func NewStatisticsDefault() StatisticsInterface {
 	statistics := new(StatisticsDefault)
 
 	statistics.iterations = -1
 
 	return statistics
 }
-func StatisticsDefaultConstructor() StatisticsInterface {
-	return NewStatisticsDefault()
-}
 func (statistics *StatisticsDefault) Start() {
 	statistics.started = true
 	statistics.startTime = time.Now()
 }
 func (statistics *StatisticsDefault) End() {
+	if !statistics.started {
+		return
+	}
+
+	statistics.started = false
 	statistics.elapsed = time.Since(statistics.startTime)
 }
+func (statistics *StatisticsDefault) Duration() time.Duration {
+	if !statistics.started {
+		return statistics.elapsed
+	}
+
+	return time.Since(statistics.startTime)
+}
+
 // Expects sorted population
 func (statistics *StatisticsDefault) OnInteration(population Chromosomes) {
 	if !statistics.started {
@@ -61,8 +107,40 @@ func (statistics *StatisticsDefault) OnInteration(population Chromosomes) {
 		return
 	}
 
-	if statistics.trackMinCost {
-		statistics.minCost = population[0].Cost()
+	statistics.minCost = population[0].Cost()
+
+	if statistics.trackMinCosts {
+		statistics.minCosts = append(statistics.minCosts, population[0].Cost())
+	}
+	if statistics.trackMinCostAge {
+		if statistics.iterations == 0 || statistics.prevDifferentMinCost != statistics.minCost {
+			statistics.prevDifferentMinCost = statistics.minCost
+			statistics.minCostAge = 0
+		} else {
+			statistics.minCostAge++
+		}
+	}
+
+	if statistics.trackMeanCost {
+		statistics.meanCost = population.MeanCost()
+	}
+	if statistics.trackMinCosts {
+		var mean float64
+		if statistics.trackMinCosts {
+			mean = statistics.meanCost
+		} else {
+			mean = population.MeanCost()
+		}
+
+		statistics.meanCosts = append(statistics.meanCosts, mean)
+	}
+
+
+	if statistics.trackWorstCost {
+		statistics.worstCost = population[len(population) - 1].Cost()
+	}
+	if statistics.trackWorstCosts {
+		statistics.worstCosts = append(statistics.worstCosts, population[len(population) - 1].Cost())
 	}
 }
 
@@ -91,23 +169,17 @@ func (statistics *StatisticsDefault) WorstCosts() []float64 {
 	return statistics.worstCosts
 }
 
-func (statistics *StatisticsDefault) TrackMinCost() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.trackMinCost = true
-}
 func (statistics *StatisticsDefault) TrackMinCosts() {
 	if statistics.started {
 		panic("Statistics should be set up before optimization")
 	}
 	statistics.trackMinCosts = true
 }
-func (statistics *StatisticsDefault) TrackMinAge() {
+func (statistics *StatisticsDefault) TrackMinCostAge() {
 	if statistics.started {
 		panic("Statistics should be set up before optimization")
 	}
-	statistics.trackMinAge = true
+	statistics.trackMinCostAge = true
 }
 func (statistics *StatisticsDefault) TrackMeanCost() {
 	if statistics.started {

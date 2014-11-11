@@ -28,7 +28,7 @@ type Optimizer struct {
 	population Chromosomes
 }
 func NewOptimizer(initializer InitializerInterface, weeder WeederInterface, selector SelectorInterface, breeder BreederInterface,
-		mutator MutatorInterface, cost CostFunction, statisticsConstructor StatisticsConstructor, popSize, chromSize int) *Optimizer {
+		mutator MutatorInterface, cost CostFunction, popSize, chromSize int) *Optimizer {
 
 	optimizer := &Optimizer{}
 
@@ -38,11 +38,15 @@ func NewOptimizer(initializer InitializerInterface, weeder WeederInterface, sele
 	optimizer.Breeder = breeder
 	optimizer.Mutator = mutator
 	optimizer.CostFunction = cost
-	optimizer.StatisticsConstructor = statisticsConstructor
+	optimizer.StatisticsConstructor = NewStatisticsDefault
 
 	optimizer.PopSize = popSize
 	optimizer.ChromSize = chromSize
 
+	return optimizer
+}
+func (optimizer *Optimizer) WithStatistics(constr StatisticsConstructor) *Optimizer {
+	optimizer.StatisticsConstructor = constr
 	return optimizer
 }
 
