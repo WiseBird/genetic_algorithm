@@ -51,17 +51,17 @@ func (criterion *StopCriterionDefault) MinMinCostsVar(value float64) *StopCriter
 	return criterion
 }
 
-func (criterion *StopCriterionDefault) Setup(statistics StatisticsInterface) {
-	stats, ok := statistics.(*StatisticsDefault)
+func (criterion *StopCriterionDefault) Setup(opts StatisticsOptionsInterface) {
+	options, ok := opts.(*StatisticsDefaultOptions)
 	if !ok {
 		panic("Method expects StatisticsDefault")
 	}
 
 	if criterion.maxMinCostAgeCrit {
-		stats.TrackMinCostAge()
+		options.TrackMinCostAge()
 	}
 	if criterion.minMinCostsVarCrit {
-		stats.TrackMinCostsVar()
+		options.TrackMinCostsVar()
 	}
 }
 

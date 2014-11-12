@@ -26,13 +26,7 @@ type StatisticsDefault struct {
 	worstCost float64
 	worstCosts []float64
 
-	trackMinCosts bool
-	trackMinCostAge bool
-	trackMeanCost bool
-	trackMeanCosts bool
-	trackWorstCost bool
-	trackWorstCosts bool
-	trackMinCostsVar bool
+	options *StatisticsDefaultOptions
 }
 func NewStatisticsDefault() StatisticsInterface {
 	statistics := new(StatisticsDefault)
@@ -40,6 +34,9 @@ func NewStatisticsDefault() StatisticsInterface {
 	statistics.generations = -1
 
 	return statistics
+}
+func (statistics *StatisticsDefault) SetOptions(options StatisticsOptionsInterface) {
+	statistics.options = options.(*StatisticsDefaultOptions)
 }
 func (statistics *StatisticsDefault) Start() {
 	statistics.started = true
@@ -69,11 +66,11 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 	statistics.minCost = population[0].Cost()
 	log.Tracef("MinCost %v", statistics.minCost)
 
-	if statistics.trackMinCosts {
+	if statistics.options.trackMinCosts {
 		statistics.minCosts = append(statistics.minCosts, population[0].Cost())
 		log.Tracef("MinCosts %v", statistics.minCosts)
 	}
-	if statistics.trackMinCostAge {
+	if statistics.options.trackMinCostAge {
 		if statistics.generations == 0 || statistics.prevDifferentMinCost != statistics.minCost {
 			statistics.prevDifferentMinCost = statistics.minCost
 			statistics.minCostAge = 0
@@ -82,7 +79,7 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 		}
 		log.Tracef("MinCostAge %v", statistics.minCostAge)
 	}
-	if statistics.trackMinCostsVar {
+	if statistics.options.trackMinCostsVar {
 		if statistics.generations == 0 || statistics.generations == statistics.minCostAge {
 			statistics.minCostsVar = math.NaN()
 		} else {
@@ -91,13 +88,13 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 		log.Tracef("MinCostsVar %v", statistics.minCostsVar)
 	}
 
-	if statistics.trackMeanCost {
+	if statistics.options.trackMeanCost {
 		statistics.meanCost = population.MeanCost()
 		log.Tracef("MeanCost %v", statistics.meanCost)
 	}
-	if statistics.trackMinCosts {
+	if statistics.options.trackMinCosts {
 		var mean float64
-		if statistics.trackMinCosts {
+		if statistics.options.trackMinCosts {
 			mean = statistics.meanCost
 		} else {
 			mean = population.MeanCost()
@@ -108,11 +105,11 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 	}
 
 
-	if statistics.trackWorstCost {
+	if statistics.options.trackWorstCost {
 		statistics.worstCost = population[len(population) - 1].Cost()
 		log.Tracef("WorstCost %v", statistics.worstCost)
 	}
-	if statistics.trackWorstCosts {
+	if statistics.options.trackWorstCosts {
 		statistics.worstCosts = append(statistics.worstCosts, population[len(population) - 1].Cost())
 		log.Tracef("WorstCosts %v", statistics.worstCosts)
 	}
@@ -166,48 +163,4 @@ func (statistics *StatisticsDefault) WorstCost() float64 {
 // Len would be `Iterations() + 1` because of initial value
 func (statistics *StatisticsDefault) WorstCosts() []float64 {
 	return statistics.worstCosts
-}
-
-func (statistics *StatisticsDefault) TrackMinCosts() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.trackMinCosts = true
-}
-func (statistics *StatisticsDefault) TrackMinCostAge() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.trackMinCostAge = true
-}
-func (statistics *StatisticsDefault) TrackMeanCost() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.trackMeanCost = true
-}
-func (statistics *StatisticsDefault) TrackMeanCosts() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.trackMeanCosts = true
-}
-func (statistics *StatisticsDefault) TrackWorstCost() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.trackWorstCost = true
-}
-func (statistics *StatisticsDefault) TrackWorstCosts() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.trackWorstCosts = true
-}
-func (statistics *StatisticsDefault) TrackMinCostsVar() {
-	if statistics.started {
-		panic("Statistics should be set up before optimization")
-	}
-	statistics.TrackMinCosts()
-	statistics.trackMinCostsVar = true
 }

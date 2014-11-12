@@ -21,6 +21,7 @@ type Optimizer struct {
 	Mutator MutatorInterface
 	CostFunction CostFunction
 	StatisticsConstructor StatisticsConstructor
+	StatisticsOptions StatisticsOptionsInterface
 
 	PopSize int
 	ChromSize int
@@ -39,6 +40,7 @@ func NewOptimizer(initializer InitializerInterface, weeder WeederInterface, sele
 	optimizer.Mutator = mutator
 	optimizer.CostFunction = cost
 	optimizer.StatisticsConstructor = NewStatisticsDefault
+	optimizer.StatisticsOptions = NewStatisticsDefaultOptions()
 
 	optimizer.PopSize = popSize
 	optimizer.ChromSize = chromSize
@@ -52,7 +54,8 @@ func (optimizer *Optimizer) WithStatistics(constr StatisticsConstructor) *Optimi
 
 func (optimizer *Optimizer) Optimize(stopCriterion StopCriterionInterface) (ChromosomeInterface, StatisticsInterface) {
 	statistics := optimizer.StatisticsConstructor()
-	stopCriterion.Setup(statistics)
+	stopCriterion.Setup(optimizer.StatisticsOptions)
+	statistics.SetOptions(optimizer.StatisticsOptions)
 	statistics.Start()
 
 	optimizer.population = optimizer.Initializer.Init(optimizer.PopSize, optimizer.ChromSize)
