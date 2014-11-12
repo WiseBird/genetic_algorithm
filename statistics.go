@@ -6,7 +6,7 @@ type StatisticsConstructor func() StatisticsInterface
 type StatisticsInterface interface {
 	Start()
 	End()
-	// Optimizer will call this method on each iteration
+	// Optimizer will call this method on each generation
 	// First call would be with initial population
-	OnInteration(Chromosomes)
+	OnGeneration(Chromosomes)
 }

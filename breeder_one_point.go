@@ -35,7 +35,7 @@ func (breeder *OnePointBreeder) Crossover(parents Chromosomes) Chromosomes {
 	genesLen := p1.Genes().Len()
 
 	bitToCross := rand.Intn(genesLen - 1) + 1;
-	log.Debugf("Cross on %v\n", bitToCross)
+	log.Tracef("Cross on %v\n", bitToCross)
 
 	c1, c2 := breeder.crossover(p1, p2, bitToCross)
 

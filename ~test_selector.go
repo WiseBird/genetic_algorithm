@@ -14,7 +14,7 @@ func (s *SelectorSuite) Test_SelectorBase_SelectMany_Should_Panic_OnNegativeCoun
 	c.Assert(func() { selector.SelectMany(-10) }, PanicMatches, `Count.*`)
 }
 
-func (s *SelectorSuite) Test_SelectorBase_SelectMany_Should_Panic_UniqueCountBiggerPop(c *C) {
+func (s *SelectorSuite) Test_SelectorBase_SelectMany_Should_Panic_WhenUniqueCountBiggerPop(c *C) {
 	pop := make(Chromosomes, 2)
 
 	ctrl := gomock.NewController(c)

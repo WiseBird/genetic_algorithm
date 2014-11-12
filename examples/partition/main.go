@@ -4,6 +4,11 @@ import (
 	ga "github.com/WiseBird/genetic_algorithm"
 	"math"
 	log "github.com/cihub/seelog"
+
+    "code.google.com/p/plotinum/plot"
+    "code.google.com/p/plotinum/plotter"
+    "code.google.com/p/plotinum/plotutil"
+    "math/rand"
 )
 
 var (
@@ -41,7 +46,7 @@ func main() {
 	chromSize := len(list)
 	weedRate := 50.0
 	mutationProb := 0.2
-	iterations := 100
+	generations := 100
 
 	initializer := ga.BinaryRandomInitializerInstance
 	weeder := ga.NewSimpleWeeder(weedRate)
@@ -49,15 +54,55 @@ func main() {
 	breeder := ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)
 	mutator := ga.NewBinaryMutator(mutationProb)
 	stopCriterion := ga.NewStopCriterionDefault().
-		MaxIterations(iterations).
+		MaxGenerations(generations).
 		MinCost(0).
 		MaxMinCostAge(15)
 
 	optimizer := ga.NewOptimizer(initializer, weeder, selector, breeder, mutator, cost, popSize, chromSize)
 	_, statistics := optimizer.Optimize(stopCriterion)
-	stats := statistics.(ga.StatisticsDefaultInterface)
+	stats := statistics.(*ga.StatisticsDefault)
 
 	log.Infof("Duration: %v", stats.Duration())
+}
+
+func drawPlot() {
+    rand.Seed(int64(0))
+
+    p, err := plot.New()
+    if err != nil {
+            panic(err)
+    }
+
+    p.Title.Text = "Plotutil example"
+    p.X.Label.Text = "X"
+    p.Y.Label.Text = "Y"
+
+    err = plotutil.AddLinePoints(p,
+            "First", randomPoints(15),
+            "Second", randomPoints(15),
+            "Third", randomPoints(15))
+    if err != nil {
+            panic(err)
+    }
+
+    // Save the plot to a PNG file.
+    if err := p.Save(4, 4, "points.png"); err != nil {
+            panic(err)
+    }
+}
+
+// randomPoints returns some random x, y points.
+func randomPoints(n int) plotter.XYs {
+        pts := make(plotter.XYs, n)
+        for i := range pts {
+                if i == 0 {
+                        pts[i].X = rand.Float64()
+                } else {
+                        pts[i].X = pts[i-1].X + rand.Float64()
+                }
+                pts[i].Y = pts[i].X + 10*rand.Float64()
+        }
+        return pts
 }
 
 func setupLogger() {

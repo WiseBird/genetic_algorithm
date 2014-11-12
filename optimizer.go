@@ -59,10 +59,10 @@ func (optimizer *Optimizer) Optimize(stopCriterion StopCriterionInterface) (Chro
 
 	iter := 0
 	for ;; {
-		log.Infof("ITERATION %d", iter)
+		log.Infof("GENERATION %d", iter)
 
 		optimizer.sort()
-		statistics.OnInteration(optimizer.population)
+		statistics.OnGeneration(optimizer.population)
 
 		if stopCriterion.ShouldStop(statistics) {
 			break

@@ -9,7 +9,7 @@ type StatisticsSuite struct{}
 var _ = Suite(&StatisticsSuite{})
 
 func (s *StatisticsSuite) TestStatisticsDefault_TrackTime_When_Running(c *C) {
-	stat := NewStatisticsDefault().(StatisticsDefaultInterface)
+	stat := NewStatisticsDefault().(*StatisticsDefault)
 
 	stat.Start()
 	time.Sleep(1e7)
@@ -21,7 +21,7 @@ func (s *StatisticsSuite) TestStatisticsDefault_TrackTime_When_Running(c *C) {
 	c.Assert(d2 > d1, Equals, true)
 }
 func (s *StatisticsSuite) TestStatisticsDefault_StopTrackTime_After_Stop(c *C) {
-	stat := NewStatisticsDefault().(StatisticsDefaultInterface)
+	stat := NewStatisticsDefault().(*StatisticsDefault)
 
 	stat.Start()
 	time.Sleep(1e7)
