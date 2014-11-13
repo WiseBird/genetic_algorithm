@@ -46,23 +46,28 @@ func main() {
 	chromSize := len(list)
 	weedRate := 50.0
 	mutationProb := 0.2
-	generations := 100
+	generations := 200
 
-	initializer := ga.BinaryRandomInitializerInstance
-	weeder := ga.NewSimpleWeeder(weedRate)
-	selector := ga.NewRouletteWheelCostWeightingSelector()
-	breeder := ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)
-	mutator := ga.NewBinaryMutator(mutationProb)
-	stopCriterion := ga.NewStopCriterionDefault().
-		MaxGenerations(generations).
-		MinCost(0).
-		MaxMinCostAge(15)
+	optimizer := ga.NewEmptyIncrementalOptimizer().
+		WithInitializer(ga.BinaryRandomInitializerInstance).
+		WithWeeder(ga.NewSimpleWeeder(weedRate)).
+		WithSelector(ga.NewRouletteWheelCostWeightingSelector()).
+		WithBreeder(ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)).
+		WithMutator(ga.NewBinaryMutator(mutationProb)).
+		WithCostFunction(cost).
+		WithStopCriterion(ga.NewStopCriterionDefault().
+			MaxGenerations(generations).
+			MinCost(0).
+			MaxMinCostAge(15)).
+		WithPopSize(popSize).
+		WithChromSize(chromSize)
 
-	optimizer := ga.NewOptimizer(initializer, weeder, selector, breeder, mutator, cost, popSize, chromSize)
-	_, statistics := optimizer.Optimize(stopCriterion)
+	_, statistics := optimizer.Optimize()
 	stats := statistics.(*ga.StatisticsDefault)
 
 	log.Infof("Duration: %v", stats.Duration())
+
+	//drawPlot()
 }
 
 func drawPlot() {
@@ -78,9 +83,9 @@ func drawPlot() {
     p.Y.Label.Text = "Y"
 
     err = plotutil.AddLinePoints(p,
-            "First", randomPoints(15),
-            "Second", randomPoints(15),
-            "Third", randomPoints(15))
+            "First", randomPoints(150),
+            "Second", randomPoints(150),
+            "Third", randomPoints(150))
     if err != nil {
             panic(err)
     }

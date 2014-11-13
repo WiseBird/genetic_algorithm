@@ -32,7 +32,7 @@ func (criterion *StopCriterionDefault) MaxGenerations(value int) *StopCriterionD
 	criterion.maxGenerations = value
 	return criterion
 }
-// Stop when min cost less then or equals value
+// Stop when min cost less than or equals value
 func (criterion *StopCriterionDefault) MinCost(value float64) *StopCriterionDefault {
 	criterion.minCostCrit = true
 	criterion.minCost = value
@@ -44,7 +44,7 @@ func (criterion *StopCriterionDefault) MaxMinCostAge(value int) *StopCriterionDe
 	criterion.maxMinCostAge = value
 	return criterion
 }
-// Stop when variance of min cost less then or equals value
+// Stop when variance of min costs less than or equals value
 func (criterion *StopCriterionDefault) MinMinCostsVar(value float64) *StopCriterionDefault {
 	criterion.minMinCostsVarCrit = true
 	criterion.minMinCostsVar = value
