@@ -13,25 +13,32 @@ type StatisticsDefaultOptions struct {
 func NewStatisticsDefaultOptions() *StatisticsDefaultOptions {
 	return new(StatisticsDefaultOptions)
 }
-func (options *StatisticsDefaultOptions) TrackMinCosts() {
+func (options *StatisticsDefaultOptions) TrackMinCosts() *StatisticsDefaultOptions {
 	options.trackMinCosts = true
+	return options
 }
-func (options *StatisticsDefaultOptions) TrackMinCostAge() {
+func (options *StatisticsDefaultOptions) TrackMinCostAge() *StatisticsDefaultOptions {
 	options.trackMinCostAge = true
+	return options
 }
-func (options *StatisticsDefaultOptions) TrackMeanCost() {
+func (options *StatisticsDefaultOptions) TrackMeanCost() *StatisticsDefaultOptions {
 	options.trackMeanCost = true
+	return options
 }
-func (options *StatisticsDefaultOptions) TrackMeanCosts() {
+func (options *StatisticsDefaultOptions) TrackMeanCosts() *StatisticsDefaultOptions {
 	options.trackMeanCosts = true
+	return options
 }
-func (options *StatisticsDefaultOptions) TrackWorstCost() {
+func (options *StatisticsDefaultOptions) TrackWorstCost() *StatisticsDefaultOptions {
 	options.trackWorstCost = true
+	return options
 }
-func (options *StatisticsDefaultOptions) TrackWorstCosts() {
+func (options *StatisticsDefaultOptions) TrackWorstCosts() *StatisticsDefaultOptions {
 	options.trackWorstCosts = true
+	return options
 }
-func (options *StatisticsDefaultOptions) TrackMinCostsVar() {
+func (options *StatisticsDefaultOptions) TrackMinCostsVar() *StatisticsDefaultOptions {
 	options.TrackMinCosts()
 	options.trackMinCostsVar = true
+	return options
 }

@@ -92,9 +92,9 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 		statistics.meanCost = population.MeanCost()
 		log.Tracef("MeanCost %v", statistics.meanCost)
 	}
-	if statistics.options.trackMinCosts {
+	if statistics.options.trackMeanCosts {
 		var mean float64
-		if statistics.options.trackMinCosts {
+		if statistics.options.trackMeanCost {
 			mean = statistics.meanCost
 		} else {
 			mean = population.MeanCost()

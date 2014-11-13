@@ -8,7 +8,6 @@ import (
     "code.google.com/p/plotinum/plot"
     "code.google.com/p/plotinum/plotter"
     "code.google.com/p/plotinum/plotutil"
-    "math/rand"
 )
 
 var (
@@ -59,6 +58,9 @@ func main() {
 			MaxGenerations(generations).
 			MinCost(0).
 			MaxMinCostAge(15)).
+		WithStatisticsOptions(ga.NewStatisticsDefaultOptions().
+			TrackMinCosts().
+			TrackMeanCosts()).
 		WithPopSize(popSize).
 		WithChromSize(chromSize)
 
@@ -66,48 +68,47 @@ func main() {
 	stats := statistics.(*ga.StatisticsDefault)
 
 	log.Infof("Duration: %v", stats.Duration())
+	log.Infof("MinCosts: %v", stats.MinCosts())
+	log.Infof("MeanCosts: %v", stats.MeanCosts())
 
-	//drawPlot()
+	drawPlot(stats)
 }
 
-func drawPlot() {
-    rand.Seed(int64(0))
-
+func drawPlot(stats *ga.StatisticsDefault) {
     p, err := plot.New()
     if err != nil {
             panic(err)
     }
 
     p.Title.Text = "Plotutil example"
-    p.X.Label.Text = "X"
-    p.Y.Label.Text = "Y"
+    p.X.Label.Text = "Gens"
+    p.Y.Label.Text = "Cost"
 
     err = plotutil.AddLinePoints(p,
-            "First", randomPoints(150),
-            "Second", randomPoints(150),
-            "Third", randomPoints(150))
+            "Mean", convertCostsToXYs(stats.MinCosts()),
+            "Min", convertCostsToXYs(stats.MeanCosts()))
     if err != nil {
             panic(err)
     }
 
-    // Save the plot to a PNG file.
+    //p.Y.Max = math.Max(1e4, p.Y.Min * 10)
+
     if err := p.Save(4, 4, "points.png"); err != nil {
             panic(err)
     }
 }
 
-// randomPoints returns some random x, y points.
-func randomPoints(n int) plotter.XYs {
-        pts := make(plotter.XYs, n)
-        for i := range pts {
-                if i == 0 {
-                        pts[i].X = rand.Float64()
-                } else {
-                        pts[i].X = pts[i-1].X + rand.Float64()
-                }
-                pts[i].Y = pts[i].X + 10*rand.Float64()
-        }
-        return pts
+func convertCostsToXYs(costs []float64) plotter.XYs {
+    pts := make(plotter.XYs, len(costs))
+    for i, cost := range costs {
+        pts[i].X = float64(i)
+        if cost != 0 {
+	        pts[i].Y = math.Log10(cost)
+	    } else {
+	    	pts[i].Y = 0
+	    }
+    }
+    return pts
 }
 
 func setupLogger() {
