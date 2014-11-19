@@ -27,3 +27,33 @@ func (s *SelectorSuite) Test_SelectorBase_SelectMany_Should_Panic_WhenUniqueCoun
 	selector.Prepare(pop)
 	c.Assert(func() { selector.SelectMany(3) }, PanicMatches, `.*unique.*`)
 }
+
+func (s *SelectorSuite) Test_SelectorTournamentProbabilities(c *C) {
+	selector := NewTournamentSelector(0.5, 1)
+	c.Assert(0.5, Within, 0.0001, selector.ithProbability(0))
+	c.Assert(0.25, Within, 0.0001, selector.ithProbability(1))
+	c.Assert(0.125, Within, 0.0001, selector.ithProbability(2))
+
+	selector = NewTournamentSelector(0.8, 1)
+	c.Assert(0.8, Within, 0.0001, selector.ithProbability(0))
+	c.Assert(0.16, Within, 0.0001, selector.ithProbability(1))
+	c.Assert(0.032, Within, 0.0001, selector.ithProbability(2))
+}
+
+func (s *SelectorSuite) Test_SelectorSimpleTournament_ReturnsTheOnePossibleValue(c *C) {
+	pop := Chromosomes{NewEmptyBinaryChromosome(1)}
+
+	selector := NewSimpleTournamentSelector(3)
+	selector.Prepare(pop)
+
+	c.Assert(selector.SelectInd(), Equals, 0)
+}
+
+func (s *SelectorSuite) Test_SelectorTournament_ReturnsTheOnePossibleValue(c *C) {
+	pop := Chromosomes{NewEmptyBinaryChromosome(1)}
+
+	selector := NewTournamentSelector(0.5, 3)
+	selector.Prepare(pop)
+
+	c.Assert(selector.SelectInd(), Equals, 0)
+}

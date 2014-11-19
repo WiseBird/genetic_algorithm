@@ -1,6 +1,6 @@
 package genetic_algorithm
 
-import ( 
+import (
 	"testing"
 	. "gopkg.in/check.v1"
 	log "github.com/cihub/seelog"
@@ -15,7 +15,7 @@ func Test(t *testing.T) {
 	TestingT(t)
 }
 func setupLogger() {
-	logger, err := log.LoggerFromConfigAsString("<seelog type=\"sync\"></seelog>")
+	logger, err := log.LoggerFromConfigAsString("<seelog minlevel=\"info\" type=\"sync\"></seelog>")
 
 	if err != nil {
 	    panic(err)
