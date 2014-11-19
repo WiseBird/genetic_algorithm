@@ -94,10 +94,16 @@ func (breeder *MultiPointBreeder) crossover(p1, p2 ChromosomeInterface, crossPoi
 	genesLen := p1.Genes().Len()
 
 	c1 = breeder.chromConstr(genesLen)
-	c1genes := c1.Genes()
+	c1genes, ok := c1.Genes().(CopyableGenesInterface)
+	if !ok {
+		panic("Chromosome's genes does not implement CopyableGenesInterface")
+	}
 
 	c2 = breeder.chromConstr(genesLen)
-	c2genes := c2.Genes()
+	c2genes, ok := c2.Genes().(CopyableGenesInterface)
+	if !ok {
+		panic("Chromosome's genes does not implement CopyableGenesInterface")
+	}
 
 	crossPoint := 0
 	for i := 0; i < len(crossPoints); i++ {

@@ -28,12 +28,19 @@ func (selector *RouletteWheelCostWeightingSelector) Prepare(population Chromosom
 
 	for i := 0; i < len(selector.population); i++ {
 		chrom := selector.population[i]
-		fitnessSum += chrom.Fitness()
+		fitnessSum += selector.fitness(chrom.Cost())
 	}
 
 	selector.fitnessSum = fitnessSum
 
 	log.Tracef("Prepared fs=%f\n", selector.fitnessSum)
+}
+func (selector *RouletteWheelCostWeightingSelector) fitness(cost float64) float64 {
+	if cost < 0 {
+		panic("Can't calc fitness for negative cost")
+	}
+
+	return 1 / ( cost + 1)
 }
 func (selector *RouletteWheelCostWeightingSelector) Select() ChromosomeInterface {
 	return selector.population[selector.SelectInd()]
@@ -44,7 +51,7 @@ func (selector *RouletteWheelCostWeightingSelector) SelectInd() int {
 	sum := 0.0
 	for i := 0; i < len(selector.population); i++ {
 		chrom := selector.population[i]
-		sum += chrom.Fitness()
+		sum += selector.fitness(chrom.Cost())
 
 		if rnd < sum {
 			log.Tracef("Found chrom %v, on %d", chrom, i)

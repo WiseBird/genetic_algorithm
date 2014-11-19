@@ -11,9 +11,6 @@ type ChromosomeInterface interface {
 	Genes() GenesInterface
 	SetCost(float64)
 	Cost() float64
-	// Calcs fitness=(0,1] from normalized(0 - best case) cost.
-	// Must throw error if cost is negative.
-	Fitness() float64
 }
 
 type Chromosomes []ChromosomeInterface
@@ -52,5 +49,7 @@ func (c Chromosomes) String() string {
 
 type GenesInterface interface {
 	Len() int
+}
+type CopyableGenesInterface interface {
 	Copy(genes GenesInterface, from1, from2, to2 int) int
 }
