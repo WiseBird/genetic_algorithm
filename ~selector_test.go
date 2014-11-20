@@ -57,3 +57,14 @@ func (s *SelectorSuite) Test_SelectorTournament_ReturnsTheOnePossibleValue(c *C)
 
 	c.Assert(selector.SelectInd(), Equals, 0)
 }
+
+func (s *SelectorSuite) Test_SelectorWheelRank_Weighting(c *C) {
+	selector := NewRouletteWheelRankWeightingSelector()
+
+	selector.Prepare(make(Chromosomes, 1))
+	c.Assert(selector.weights, DeepEquals, []float64{1})
+
+	selector.Prepare(make(Chromosomes, 4))
+	c.Assert(selector.weights, DeepEquals, []float64{0.4, 0.3, 0.2, 0.1})
+}
+

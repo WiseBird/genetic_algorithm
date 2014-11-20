@@ -25,9 +25,6 @@ func NewSimpleTournamentSelector(contestants int) *SimpleTournamentSelector {
 
 	return selector
 }
-func (selector *SimpleTournamentSelector) Select() ChromosomeInterface {
-	return selector.population[selector.SelectInd()]
-}
 func (selector *SimpleTournamentSelector) SelectInd() int {
 	var bestCost float64
 	bestInd := -1

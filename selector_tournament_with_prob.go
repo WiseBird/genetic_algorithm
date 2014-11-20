@@ -35,9 +35,6 @@ func NewTournamentSelector(probability float64, contestants int) *TournamentSele
 
 	return selector
 }
-func (selector *TournamentSelector) Select() ChromosomeInterface {
-	return selector.population[selector.SelectInd()]
-}
 func (selector *TournamentSelector) SelectInd() int {
 	contestants := make([]int, selector.contestants)
 

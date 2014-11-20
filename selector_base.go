@@ -40,6 +40,9 @@ func (selector *SelectorBase) Prepare(population Chromosomes) {
 	selector.population = population
 }
 
+func (selector *SelectorBase) Select() ChromosomeInterface {
+	return selector.population[selector.SelectorBaseVirtualMInterface.SelectInd()]
+}
 func (selector *SelectorBase) SelectMany(count int) Chromosomes {
 	log.Tracef("SelectMany c=%d\n", count)
 

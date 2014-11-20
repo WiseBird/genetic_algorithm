@@ -1,7 +1,7 @@
 package main
 
 import (
-	ga "github.com/WiseBird/genetic_algorithm"
+	. "github.com/WiseBird/genetic_algorithm"
 	"math"
 	log "github.com/cihub/seelog"
 
@@ -16,12 +16,12 @@ var (
 	finalProduct = 3120
 )
 
-func cost(c ga.ChromosomeInterface) float64 {
-	bc := c.(*ga.BinaryChromosome)
+func cost(c ChromosomeInterface) float64 {
+	bc := c.(*BinaryChromosome)
 	sum := 0
 	prod := 1
 
-	genes := bc.Genes().(ga.BinaryGenes)
+	genes := bc.Genes().(BinaryGenes)
 
 	for i := 0; i < len(genes); i++ {
 		if genes[i] {
@@ -41,40 +41,53 @@ func main() {
 	defer log.Flush()
 	setupLogger()
 
+	iterations := 1000
+
+	statisticsOptions := NewStatisticsDefaultOptions().
+			TrackMinCosts().
+			TrackMeanCosts()
+	statisticsAggregator := NewStatisticsDefaultAggregator(statisticsOptions)
+	optimizer := createOptimizer(statisticsOptions)
+
+	gatherStatistics(optimizer, statisticsAggregator, iterations)
+
+	log.Warnf("Duration: %v", statisticsAggregator.Duration())
+	log.Warnf("MinCosts: %v", statisticsAggregator.MinCosts())
+
+	drawPlot(statisticsAggregator)
+}
+
+func createOptimizer(statisticsOptions StatisticsOptionsInterface) OptimizerInterface {
 	popSize := 32
 	chromSize := len(list)
 	weedRate := 50.0
-	mutationProb := 0.2
+	mutationProb := 0.05
 	generations := 200
 
-	optimizer := ga.NewIncrementalOptimizer().
-		Initializer(ga.BinaryRandomInitializerInstance).
-		Weeder(ga.NewSimpleWeeder(weedRate)).
-		Selector(ga.NewRouletteWheelCostWeightingSelector()).
-		Breeder(ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)).
-		Mutator(ga.NewBinaryMutator(mutationProb)).
+	return NewIncrementalOptimizer().
+		Initializer(BinaryRandomInitializerInstance).
+		Weeder(NewSimpleWeeder(weedRate)).
+		Selector(NewRouletteWheelCostWeightingSelector()).
+		Breeder(NewOnePointBreeder(NewEmptyBinaryChromosome)).
+		Mutator(NewBinaryMutator(mutationProb)).
 		CostFunction(cost).
-		StopCriterion(ga.NewStopCriterionDefault().
+		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).
 			Min_Cost(0).
 			Max_MinCostAge(15)).
-		StatisticsOptions(ga.NewStatisticsDefaultOptions().
-			TrackMinCosts().
-			TrackMeanCosts()).
+		StatisticsOptions(statisticsOptions).
 		PopSize(popSize).
 		ChromSize(chromSize)
-
-	_, statistics := optimizer.Optimize()
-	stats := statistics.(*ga.StatisticsDefault)
-
-	log.Infof("Duration: %v", stats.Duration())
-	log.Infof("MinCosts: %v", stats.MinCosts())
-	log.Infof("MeanCosts: %v", stats.MeanCosts())
-
-	drawPlot(stats)
+}
+func gatherStatistics(optimizer OptimizerInterface, statisticsAggregator *StatisticsDefaultAggregator, iters int) {
+	for i := 0; i < iters; i++ {
+		_, statistics := optimizer.Optimize()
+		statisticsAggregator.Aggregate(statistics)
+	}
+	statisticsAggregator.Compute()
 }
 
-func drawPlot(stats *ga.StatisticsDefault) {
+func drawPlot(stats *StatisticsDefaultAggregator) {
     p, err := plot.New()
     if err != nil {
             panic(err)
@@ -91,8 +104,6 @@ func drawPlot(stats *ga.StatisticsDefault) {
             panic(err)
     }
 
-    //p.Y.Max = math.Max(1e4, p.Y.Min * 10)
-
     if err := p.Save(8, 4, "points.png"); err != nil {
             panic(err)
     }
@@ -102,8 +113,10 @@ func convertCostsToXYs(costs []float64) plotter.XYs {
     pts := make(plotter.XYs, len(costs))
     for i, cost := range costs {
         pts[i].X = float64(i)
-        if cost != 0 {
+        if cost > 0 {
 	        pts[i].Y = math.Log10(cost)
+	    } else if cost < 0 {
+	    	pts[i].Y = -1 * math.Log10(math.Abs(cost))
 	    } else {
 	    	pts[i].Y = 0
 	    }
