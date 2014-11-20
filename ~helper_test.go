@@ -5,6 +5,31 @@ import (
 	. "gopkg.in/check.v1"
 )
 
+type HelperSuite struct{}
+var _ = Suite(&HelperSuite{})
+
+func (s *HelperSuite) Test_MeanInt64(c *C) {
+	values := []int64{2,3,4}
+	result := int64(3)
+
+	c.Assert(meanInt64(values), Equals, result)
+}
+func (s *HelperSuite) Test_MeanFloat64Arr(c *C) {
+	values := [][]float64{
+		[]float64 { 2 },
+		[]float64 { 8, 6, 4 },
+		[]float64 { 20, 19, 15, 12, 9 },
+	}
+	result := []float64{10, 9, 7, 6, 5}
+
+	c.Assert(meanFloat64Arr(values), DeepEquals, result)
+	c.Assert(meanFloat64ArrIter(len(values), func(i int) []float64 {
+		return values[i]
+	}), DeepEquals, result)
+}
+
+
+
 //Within Delta Custom Checker
 type withinChecker struct {
 	*CheckerInfo

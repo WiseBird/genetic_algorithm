@@ -47,22 +47,22 @@ func main() {
 	mutationProb := 0.2
 	generations := 200
 
-	optimizer := ga.NewEmptyIncrementalOptimizer().
-		WithInitializer(ga.BinaryRandomInitializerInstance).
-		WithWeeder(ga.NewSimpleWeeder(weedRate)).
-		WithSelector(ga.NewRouletteWheelCostWeightingSelector()).
-		WithBreeder(ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)).
-		WithMutator(ga.NewBinaryMutator(mutationProb)).
-		WithCostFunction(cost).
-		WithStopCriterion(ga.NewStopCriterionDefault().
-			MaxGenerations(generations).
-			MinCost(0).
-			MaxMinCostAge(15)).
-		WithStatisticsOptions(ga.NewStatisticsDefaultOptions().
+	optimizer := ga.NewIncrementalOptimizer().
+		Initializer(ga.BinaryRandomInitializerInstance).
+		Weeder(ga.NewSimpleWeeder(weedRate)).
+		Selector(ga.NewRouletteWheelCostWeightingSelector()).
+		Breeder(ga.NewOnePointBreeder(ga.NewEmptyBinaryChromosome)).
+		Mutator(ga.NewBinaryMutator(mutationProb)).
+		CostFunction(cost).
+		StopCriterion(ga.NewStopCriterionDefault().
+			Max_Generations(generations).
+			Min_Cost(0).
+			Max_MinCostAge(15)).
+		StatisticsOptions(ga.NewStatisticsDefaultOptions().
 			TrackMinCosts().
 			TrackMeanCosts()).
-		WithPopSize(popSize).
-		WithChromSize(chromSize)
+		PopSize(popSize).
+		ChromSize(chromSize)
 
 	_, statistics := optimizer.Optimize()
 	stats := statistics.(*ga.StatisticsDefault)
@@ -93,7 +93,7 @@ func drawPlot(stats *ga.StatisticsDefault) {
 
     //p.Y.Max = math.Max(1e4, p.Y.Min * 10)
 
-    if err := p.Save(4, 4, "points.png"); err != nil {
+    if err := p.Save(8, 4, "points.png"); err != nil {
             panic(err)
     }
 }
@@ -113,7 +113,6 @@ func convertCostsToXYs(costs []float64) plotter.XYs {
 
 func setupLogger() {
 	logger, err := log.LoggerFromConfigAsFile("seelog.xml")
-
 	if err != nil {
 	    panic(err)
 	}

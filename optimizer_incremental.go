@@ -23,34 +23,7 @@ type IncrementalOptimizer struct {
 	population Chromosomes
 }
 
-func NewIncrementalOptimizer(
-		initializer InitializerInterface, 
-		weeder WeederInterface, 
-		selector SelectorInterface, 
-		breeder BreederInterface,
-		mutator MutatorInterface, 
-		cost CostFunction, 
-		stopCriterion StopCriterionInterface,
-		popSize, 
-		chromSize int) *IncrementalOptimizer {
-
-	optimizer := NewEmptyIncrementalOptimizer()
-
-	optimizer.initializer = initializer
-	optimizer.weeder = weeder
-	optimizer.selector = selector
-	optimizer.breeder = breeder
-	optimizer.mutator = mutator
-
-	optimizer.costFunction = cost
-	optimizer.stopCriterion = stopCriterion
-
-	optimizer.popSize = popSize
-	optimizer.chromSize = chromSize
-
-	return optimizer
-}
-func NewEmptyIncrementalOptimizer() *IncrementalOptimizer {
+func NewIncrementalOptimizer() *IncrementalOptimizer {
 	optimizer := &IncrementalOptimizer{}
 
 	optimizer.statisticsConstructor = NewStatisticsDefault
@@ -59,58 +32,62 @@ func NewEmptyIncrementalOptimizer() *IncrementalOptimizer {
 	return optimizer
 }
 
-func (optimizer *IncrementalOptimizer) WithInitializer(initializer InitializerInterface) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) Initializer(initializer InitializerInterface) *IncrementalOptimizer {
 	optimizer.initializer = initializer
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithWeeder(weeder WeederInterface) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) Weeder(weeder WeederInterface) *IncrementalOptimizer {
 	optimizer.weeder = weeder
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithSelector(selector SelectorInterface) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) Selector(selector SelectorInterface) *IncrementalOptimizer {
 	optimizer.selector = selector
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithBreeder(breeder BreederInterface) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) Breeder(breeder BreederInterface) *IncrementalOptimizer {
 	optimizer.breeder = breeder
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithMutator(mutator MutatorInterface) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) Mutator(mutator MutatorInterface) *IncrementalOptimizer {
 	optimizer.mutator = mutator
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithCostFunction(cost CostFunction) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) CostFunction(cost CostFunction) *IncrementalOptimizer {
 	optimizer.costFunction = cost
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithStopCriterion(stopCriterion StopCriterionInterface) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) StopCriterion(stopCriterion StopCriterionInterface) *IncrementalOptimizer {
 	optimizer.stopCriterion = stopCriterion
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithStatistics(constr StatisticsConstructor) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) StatisticsConstructor(constr StatisticsConstructor) *IncrementalOptimizer {
 	optimizer.statisticsConstructor = constr
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithStatisticsOptions(statisticsOptions StatisticsOptionsInterface) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) StatisticsOptions(statisticsOptions StatisticsOptionsInterface) *IncrementalOptimizer {
 	optimizer.statisticsOptions = statisticsOptions
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithPopSize(popSize int) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) PopSize(popSize int) *IncrementalOptimizer {
 	optimizer.popSize = popSize
 	return optimizer
 }
-func (optimizer *IncrementalOptimizer) WithChromSize(chromSize int) *IncrementalOptimizer {
+func (optimizer *IncrementalOptimizer) ChromSize(chromSize int) *IncrementalOptimizer {
 	optimizer.chromSize = chromSize
 	return optimizer
 }
 
 func (optimizer *IncrementalOptimizer) Optimize() (ChromosomeInterface, StatisticsInterface) {
-	statistics := optimizer.statisticsConstructor()
+	optimizer.check()
 	optimizer.stopCriterion.Setup(optimizer.statisticsOptions)
-	statistics.SetOptions(optimizer.statisticsOptions)
+
+	statistics := optimizer.statisticsConstructor(optimizer.statisticsOptions)
 	statistics.Start()
 
 	optimizer.population = optimizer.initializer.Init(optimizer.popSize, optimizer.chromSize)
+	if len(optimizer.population) == 0 {
+		panic("Init population is empty")
+	}
 
 	iter := 0
 	for ;; {
@@ -171,4 +148,40 @@ func (optimizer *IncrementalOptimizer) breed() {
 }
 func (optimizer *IncrementalOptimizer) mutate() {
 	optimizer.mutator.Mutate(optimizer.population)
+}
+
+func (optimizer *IncrementalOptimizer) check() {
+	if optimizer.initializer == nil {
+		panic("Initializer must be set")
+	}
+	if optimizer.weeder == nil {
+		panic("Weeder must be set")
+	}
+	if optimizer.selector == nil {
+		panic("Selector must be set")
+	}
+	if optimizer.breeder == nil {
+		panic("Breeder must be set")
+	}
+	if optimizer.mutator == nil {
+		panic("Mutator must be set")
+	}
+	if optimizer.costFunction == nil {
+		panic("CostFunction must be set")
+	}
+	if optimizer.stopCriterion == nil {
+		panic("StopCriterion must be set")
+	}
+	if optimizer.statisticsConstructor == nil {
+		panic("StatisticsConstructor must be set")
+	}
+	if optimizer.statisticsOptions == nil {
+		panic("StatisticsOptions must be set")
+	}
+	if optimizer.popSize <= 0 {
+		panic("PopSize must be positive value")
+	}
+	if optimizer.chromSize <= 0 {
+		panic("ChromSize must be positive value")
+	}
 }

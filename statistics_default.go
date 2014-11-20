@@ -28,15 +28,18 @@ type StatisticsDefault struct {
 
 	options *StatisticsDefaultOptions
 }
-func NewStatisticsDefault() StatisticsInterface {
+func NewStatisticsDefault(options StatisticsOptionsInterface) StatisticsInterface {
+	opts, ok := options.(*StatisticsDefaultOptions)
+	if !ok {
+		panic("Expects instance of StatisticsOptionsInterface")
+	}
+
 	statistics := new(StatisticsDefault)
 
 	statistics.generations = -1
+	statistics.options = opts
 
 	return statistics
-}
-func (statistics *StatisticsDefault) SetOptions(options StatisticsOptionsInterface) {
-	statistics.options = options.(*StatisticsDefaultOptions)
 }
 func (statistics *StatisticsDefault) Start() {
 	statistics.started = true
@@ -60,7 +63,7 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 	statistics.generations++
 
 	if len(population) == 0 {
-		return
+		panic("Population is empty")
 	}
 
 	statistics.minCost = population[0].Cost()
@@ -103,7 +106,6 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 		statistics.meanCosts = append(statistics.meanCosts, mean)
 		log.Tracef("MeanCosts %v", statistics.meanCosts)
 	}
-
 
 	if statistics.options.trackWorstCost {
 		statistics.worstCost = population[len(population) - 1].Cost()

@@ -23,7 +23,7 @@ func NewStopCriterionDefault() *StopCriterionDefault {
 	return criterion
 }
 // Stop when specified number of generations is reached
-func (criterion *StopCriterionDefault) MaxGenerations(value int) *StopCriterionDefault {
+func (criterion *StopCriterionDefault) Max_Generations(value int) *StopCriterionDefault {
 	if value < 0 {
 		panic("Value can't be negative")
 	}
@@ -33,19 +33,19 @@ func (criterion *StopCriterionDefault) MaxGenerations(value int) *StopCriterionD
 	return criterion
 }
 // Stop when min cost less than or equals value
-func (criterion *StopCriterionDefault) MinCost(value float64) *StopCriterionDefault {
+func (criterion *StopCriterionDefault) Min_Cost(value float64) *StopCriterionDefault {
 	criterion.minCostCrit = true
 	criterion.minCost = value
 	return criterion
 }
 // Stop when min cost wasn't changed for value generations
-func (criterion *StopCriterionDefault) MaxMinCostAge(value int) *StopCriterionDefault {
+func (criterion *StopCriterionDefault) Max_MinCostAge(value int) *StopCriterionDefault {
 	criterion.maxMinCostAgeCrit = true
 	criterion.maxMinCostAge = value
 	return criterion
 }
 // Stop when variance of min costs less than or equals value
-func (criterion *StopCriterionDefault) MinMinCostsVar(value float64) *StopCriterionDefault {
+func (criterion *StopCriterionDefault) Min_MinCostsVar(value float64) *StopCriterionDefault {
 	criterion.minMinCostsVarCrit = true
 	criterion.minMinCostsVar = value
 	return criterion
@@ -92,7 +92,7 @@ func (criterion *StopCriterionDefault) ShouldStop(statistics StatisticsInterface
 	if criterion.minMinCostsVarCrit {
 		log.Debugf("MinCostsVar %v", stats.MinCostsVar())
 		if stats.MinCostsVar() >= criterion.minMinCostsVar {
-			log.Info("Stop by max min cost's age")
+			log.Info("Stop by max min costs var")
 			return true
 		}
 	}
