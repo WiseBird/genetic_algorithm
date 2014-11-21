@@ -2,12 +2,9 @@ package main
 
 import (
 	. "github.com/WiseBird/genetic_algorithm"
+	"github.com/WiseBird/genetic_algorithm/plotting"
 	"math"
 	log "github.com/cihub/seelog"
-
-    "code.google.com/p/plotinum/plot"
-    "code.google.com/p/plotinum/plotter"
-    "code.google.com/p/plotinum/plotutil"
 )
 
 var (
@@ -41,7 +38,7 @@ func main() {
 	defer log.Flush()
 	setupLogger()
 
-	iterations := 1000
+	iterations := 100
 
 	statisticsOptions := NewStatisticsDefaultOptions().
 			TrackMinCosts().
@@ -49,12 +46,16 @@ func main() {
 	statisticsAggregator := NewStatisticsDefaultAggregator(statisticsOptions)
 	optimizer := createOptimizer(statisticsOptions)
 
-	gatherStatistics(optimizer, statisticsAggregator, iterations)
+	plotting.NewPlotter().
+		AddPlotWithComputations(optimizer, statisticsAggregator, iterations).
+			AddMinCostDataSet().YConverter(plotting.Log10).Done().
+			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
+		Done().
+		Draw(8, 4, "points.png")
 
 	log.Warnf("Duration: %v", statisticsAggregator.Duration())
 	log.Warnf("MinCosts: %v", statisticsAggregator.MinCosts())
-
-	drawPlot(statisticsAggregator)
+	log.Warnf("MeanCosts: %v", statisticsAggregator.MeanCosts())
 }
 
 func createOptimizer(statisticsOptions StatisticsOptionsInterface) OptimizerInterface {
@@ -65,7 +66,7 @@ func createOptimizer(statisticsOptions StatisticsOptionsInterface) OptimizerInte
 	generations := 200
 
 	return NewIncrementalOptimizer().
-		Initializer(BinaryRandomInitializerInstance).
+		Initializer(NewBinaryRandomInitializer()).
 		Weeder(NewSimpleWeeder(weedRate)).
 		Selector(NewRouletteWheelCostWeightingSelector()).
 		Breeder(NewOnePointBreeder(NewEmptyBinaryChromosome)).
@@ -78,50 +79,6 @@ func createOptimizer(statisticsOptions StatisticsOptionsInterface) OptimizerInte
 		StatisticsOptions(statisticsOptions).
 		PopSize(popSize).
 		ChromSize(chromSize)
-}
-func gatherStatistics(optimizer OptimizerInterface, statisticsAggregator *StatisticsDefaultAggregator, iters int) {
-	for i := 0; i < iters; i++ {
-		_, statistics := optimizer.Optimize()
-		statisticsAggregator.Aggregate(statistics)
-	}
-	statisticsAggregator.Compute()
-}
-
-func drawPlot(stats *StatisticsDefaultAggregator) {
-    p, err := plot.New()
-    if err != nil {
-            panic(err)
-    }
-
-    p.Title.Text = "Plotutil example"
-    p.X.Label.Text = "Gens"
-    p.Y.Label.Text = "Cost"
-
-    err = plotutil.AddLinePoints(p,
-            "Mean", convertCostsToXYs(stats.MinCosts()),
-            "Min", convertCostsToXYs(stats.MeanCosts()))
-    if err != nil {
-            panic(err)
-    }
-
-    if err := p.Save(8, 4, "points.png"); err != nil {
-            panic(err)
-    }
-}
-
-func convertCostsToXYs(costs []float64) plotter.XYs {
-    pts := make(plotter.XYs, len(costs))
-    for i, cost := range costs {
-        pts[i].X = float64(i)
-        if cost > 0 {
-	        pts[i].Y = math.Log10(cost)
-	    } else if cost < 0 {
-	    	pts[i].Y = -1 * math.Log10(math.Abs(cost))
-	    } else {
-	    	pts[i].Y = 0
-	    }
-    }
-    return pts
 }
 
 func setupLogger() {

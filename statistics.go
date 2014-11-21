@@ -17,7 +17,7 @@ type StatisticsInterface interface {
 // Defines what info gather and what not
 type StatisticsOptionsInterface interface { }
 
-type StatisticsAggregator interface {
+type StatisticsAggregatorInterface interface {
 	Aggregate(StatisticsInterface)
 	Compute()
 }

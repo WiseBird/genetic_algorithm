@@ -43,16 +43,12 @@ func meanFloat64Arr(values [][]float64) []float64 {
 	}
 
 	sum := make([]float64, length)
-	for _, arr := range values {
-		sum[0] += arr[0]
-	}
-
-	for i := 1; i < length; i++ {
-		sum[i] = sum[i-1]
+	for i := 0; i < length; i++ {
 		for _, arr := range values {
 			if len(arr) > i {
-				sum[i] -= arr[i-1]
 				sum[i] += arr[i]
+			} else {
+				sum[i] += arr[len(arr) - 1]
 			}
 		}
 	}

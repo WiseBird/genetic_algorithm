@@ -27,6 +27,15 @@ func (s *HelperSuite) Test_MeanFloat64Arr(c *C) {
 		return values[i]
 	}), DeepEquals, result)
 }
+func (s *HelperSuite) Test_MeanFloat64Arr_BigNumbers(c *C) {
+	values := [][]float64{
+		[]float64 { 2e30, 1e8 },
+		[]float64 { 1e10, 1e8 },
+	}
+	result := []float64{1e30, 1e8}
+
+	c.Assert(meanFloat64Arr(values), DeepEquals, result)
+}
 
 
 

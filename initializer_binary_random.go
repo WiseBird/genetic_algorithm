@@ -4,14 +4,14 @@ import (
 	"math/rand"
 )
 
-var (
-	BinaryRandomInitializerInstance = new(BinaryRandomInitializer)
-)
-
 type BinaryRandomInitializer struct {
 }
+func NewBinaryRandomInitializer() *BinaryRandomInitializer {
+	initializer := new(BinaryRandomInitializer)	
 
-func (izer *BinaryRandomInitializer) Init(count, chromSize int) Chromosomes {
+	return initializer
+}
+func (initializer *BinaryRandomInitializer) Init(count, chromSize int) Chromosomes {
 	result := make([]ChromosomeInterface, count)
 
 	for chromeInd := 0; chromeInd < count; chromeInd++ {
