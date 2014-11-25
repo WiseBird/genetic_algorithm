@@ -38,7 +38,7 @@ func main() {
 	defer log.Flush()
 	setupLogger()
 
-	iterations := 100
+	iterations := 1000
 
 	statisticsOptions := NewStatisticsDefaultOptions().
 			TrackMinCosts().
@@ -48,10 +48,11 @@ func main() {
 
 	plotting.NewPlotter().
 		AddPlotWithComputations(optimizer, statisticsAggregator, iterations).
+			Title("Partition 1-20").
 			AddMinCostDataSet().YConverter(plotting.Log10).Done().
 			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
 		Done().
-		Draw(8, 4, "points.png")
+		Draw(8, 4, "partition.png")
 
 	log.Warnf("Duration: %v", statisticsAggregator.Duration())
 	log.Warnf("MinCosts: %v", statisticsAggregator.MinCosts())

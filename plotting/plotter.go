@@ -3,9 +3,21 @@ package plotting
 import (
 	. "github.com/WiseBird/genetic_algorithm"
 	"math"
+
     pplot "code.google.com/p/plotinum/plot"
     "code.google.com/p/plotinum/plotter"
     "code.google.com/p/plotinum/plotutil"
+
+    "io"
+    "os"
+    "path/filepath"
+    "strings"
+
+	"code.google.com/p/plotinum/vg"
+	"code.google.com/p/plotinum/vg/vgeps"
+	"code.google.com/p/plotinum/vg/vgimg"
+	"code.google.com/p/plotinum/vg/vgpdf"
+	"code.google.com/p/plotinum/vg/vgsvg"
 )
 
 var (
@@ -27,6 +39,12 @@ var (
 	    return pts
 	}
 )
+
+type canvas interface {
+    vg.Canvas
+    Size() (w, h vg.Length)
+    io.WriterTo
+}
 
 type Plotter struct {
 	plots []*plot
@@ -78,11 +96,69 @@ func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) {
 		}
 	}
 
-	for _, p := range plotter.plots {
+	w, h := vg.Inches(widthInch), vg.Inches(heightInch)
+	c := plotter.createCanvas(fileName, len(plotter.plots), w, h)
+	for i, p := range plotter.plots {
+		plotter.draw(p.plot, i, c, w, h)
+	}
+
+    if err := plotter.saveFile(c, fileName); err != nil {
+        panic(err)
+    }
+
+	/*for _, p := range plotter.plots {
 	    if err := p.plot.Save(widthInch, heightInch, fileName); err != nil {
             panic(err)
 	    }
-	}
+	}*/
+}
+func (plotter *Plotter) createCanvas(fileName string, plots int, w, h vg.Length) (canvas) {
+		h *= vg.Length(plots)
+
+        switch ext := strings.ToLower(filepath.Ext(fileName)); ext {
+
+        case ".eps":
+                return vgeps.NewTitle(w, h, fileName)
+
+        case ".jpg", ".jpeg":
+                return vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
+
+        case ".pdf":
+                return vgpdf.New(w, h)
+
+        case ".png":
+                return vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
+
+        case ".svg":
+                return vgsvg.New(w, h)
+
+        case ".tiff":
+                return vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
+
+        default:
+                panic("Unsupported file extension: " + ext)
+        }
+}
+func (plotter *Plotter) draw(plot *pplot.Plot, ind int, c canvas, w, h vg.Length) {
+        da := pplot.DrawArea{
+            Canvas: c,
+            Rect: pplot.Rect {
+            	Min: pplot.Point{0, h * vg.Length(ind)},
+            	Size: pplot.Point{w, h},
+        	},
+        }
+
+        plot.Draw(da)
+}
+func (plotter *Plotter) saveFile(c canvas, fileName string)  (err error) {
+    f, err := os.Create(fileName)
+    if err != nil {
+            return err
+    }
+    if _, err = c.WriteTo(f); err != nil {
+            return err
+    }
+    return f.Close()
 }
 
 type plot struct {
