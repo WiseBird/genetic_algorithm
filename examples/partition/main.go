@@ -67,8 +67,8 @@ func createOptimizer(statisticsOptions StatisticsOptionsInterface) OptimizerInte
 	generations := 200
 
 	return NewIncrementalOptimizer().
-		Initializer(NewBinaryRandomInitializer()).
 		Weeder(NewSimpleWeeder(weedRate)).
+		Initializer(NewBinaryRandomInitializer()).
 		Selector(NewRouletteWheelCostWeightingSelector()).
 		Breeder(NewOnePointBreeder(NewEmptyBinaryChromosome)).
 		Mutator(NewBinaryMutator(mutationProb)).
