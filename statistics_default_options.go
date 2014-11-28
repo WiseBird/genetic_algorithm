@@ -3,7 +3,7 @@ package genetic_algorithm
 // Options for default statistics
 type StatisticsDefaultOptions struct {
 	trackMinCosts bool
-	trackMinCostAge bool
+	trackGensWoImprv bool
 	trackMeanCost bool
 	trackMeanCosts bool
 	trackWorstCost bool
@@ -17,8 +17,8 @@ func (options *StatisticsDefaultOptions) TrackMinCosts() *StatisticsDefaultOptio
 	options.trackMinCosts = true
 	return options
 }
-func (options *StatisticsDefaultOptions) TrackMinCostAge() *StatisticsDefaultOptions {
-	options.trackMinCostAge = true
+func (options *StatisticsDefaultOptions) TrackGenerationsWithoutImprovements() *StatisticsDefaultOptions {
+	options.trackGensWoImprv = true
 	return options
 }
 func (options *StatisticsDefaultOptions) TrackMeanCost() *StatisticsDefaultOptions {
@@ -46,7 +46,7 @@ func (options *StatisticsDefaultOptions) TrackMinCostsVar() *StatisticsDefaultOp
 func (options *StatisticsDefaultOptions) Copy() *StatisticsDefaultOptions {
 	return &StatisticsDefaultOptions{
 		options.trackMinCosts,
-		options.trackMinCostAge,
+		options.trackGensWoImprv,
 		options.trackMeanCost,
 		options.trackMeanCosts,
 		options.trackWorstCost,

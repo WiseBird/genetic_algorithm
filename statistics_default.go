@@ -15,7 +15,7 @@ type StatisticsDefault struct {
 	generations int
 
 	minCost float64
-	minCostAge int
+	gensWoImprv int
 	prevDifferentMinCost float64
 	minCosts []float64
 	minCostsVar float64
@@ -73,17 +73,17 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 		statistics.minCosts = append(statistics.minCosts, population[0].Cost())
 		log.Tracef("MinCosts %v", statistics.minCosts)
 	}
-	if statistics.options.trackMinCostAge {
+	if statistics.options.trackGensWoImprv {
 		if statistics.generations == 0 || statistics.prevDifferentMinCost != statistics.minCost {
 			statistics.prevDifferentMinCost = statistics.minCost
-			statistics.minCostAge = 0
+			statistics.gensWoImprv = 0
 		} else {
-			statistics.minCostAge++
+			statistics.gensWoImprv++
 		}
-		log.Tracef("MinCostAge %v", statistics.minCostAge)
+		log.Tracef("MinCostAge %v", statistics.gensWoImprv)
 	}
 	if statistics.options.trackMinCostsVar {
-		if statistics.generations == 0 || statistics.generations == statistics.minCostAge {
+		if statistics.generations == 0 || statistics.generations == statistics.gensWoImprv {
 			statistics.minCostsVar = math.NaN()
 		} else {
 			statistics.minCostsVar = pvarianceFloat64(statistics.minCosts)
@@ -139,9 +139,9 @@ func (statistics *StatisticsDefault) MinCost() float64 {
 func (statistics *StatisticsDefault) MinCosts() []float64 {
 	return statistics.minCosts
 }
-// Number of generations during which the value remains unchanged 
-func (statistics *StatisticsDefault) MinCostAge() int {
-	return statistics.minCostAge
+// Number of generations during which the min cost remains unchanged 
+func (statistics *StatisticsDefault) GenerationsWithoutImprovements() int {
+	return statistics.gensWoImprv
 }
 // Variance of min costs
 // Variance equals NaN until two different values of MinCost are obtained

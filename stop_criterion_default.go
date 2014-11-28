@@ -11,8 +11,8 @@ type StopCriterionDefault struct {
 	minCost float64
 	minCostCrit bool
 
-	maxMinCostAge int
-	maxMinCostAgeCrit bool
+	maxGensWoImprv int
+	maxGensWoImprvCrit bool
 
 	minMinCostsVar float64
 	minMinCostsVarCrit bool
@@ -39,9 +39,9 @@ func (criterion *StopCriterionDefault) Min_Cost(value float64) *StopCriterionDef
 	return criterion
 }
 // Stop when min cost wasn't changed for value generations
-func (criterion *StopCriterionDefault) Max_MinCostAge(value int) *StopCriterionDefault {
-	criterion.maxMinCostAgeCrit = true
-	criterion.maxMinCostAge = value
+func (criterion *StopCriterionDefault) Max_GenerationsWithoutImprovements(value int) *StopCriterionDefault {
+	criterion.maxGensWoImprvCrit = true
+	criterion.maxGensWoImprv = value
 	return criterion
 }
 // Stop when variance of min costs less than or equals value
@@ -57,8 +57,8 @@ func (criterion *StopCriterionDefault) Setup(opts StatisticsOptionsInterface) {
 		panic("Method expects StatisticsDefault")
 	}
 
-	if criterion.maxMinCostAgeCrit {
-		options.TrackMinCostAge()
+	if criterion.maxGensWoImprvCrit {
+		options.TrackGenerationsWithoutImprovements()
 	}
 	if criterion.minMinCostsVarCrit {
 		options.TrackMinCostsVar()
@@ -82,9 +82,9 @@ func (criterion *StopCriterionDefault) ShouldStop(statistics StatisticsInterface
 			return true
 		}
 	}
-	if criterion.maxMinCostAgeCrit {
-		log.Debugf("MinCostAge %v", stats.MinCostAge())
-		if stats.MinCostAge() >= criterion.maxMinCostAge {
+	if criterion.maxGensWoImprvCrit {
+		log.Debugf("GenerationsWithoutImprovements %v", stats.GenerationsWithoutImprovements())
+		if stats.GenerationsWithoutImprovements() >= criterion.maxGensWoImprv {
 			log.Info("Stop by max min cost's age")
 			return true
 		}

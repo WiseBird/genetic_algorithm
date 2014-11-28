@@ -53,7 +53,7 @@ func createOptimizer(statisticsAggregator *StatisticsDefaultAggregator) Optimize
 		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).
 			Min_Cost(0).
-			Max_MinCostAge(15)).
+			Max_GenerationsWithoutImprovements(15)).
 		StatisticsOptions(statisticsAggregator.Options()).
 		PopSize(popSize).
 		ChromSize(chromSize)
