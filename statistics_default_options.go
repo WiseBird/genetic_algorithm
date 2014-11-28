@@ -42,3 +42,15 @@ func (options *StatisticsDefaultOptions) TrackMinCostsVar() *StatisticsDefaultOp
 	options.trackMinCostsVar = true
 	return options
 }
+
+func (options *StatisticsDefaultOptions) Copy() *StatisticsDefaultOptions {
+	return &StatisticsDefaultOptions{
+		options.trackMinCosts,
+		options.trackMinCostAge,
+		options.trackMeanCost,
+		options.trackMeanCosts,
+		options.trackWorstCost,
+		options.trackWorstCosts,
+		options.trackMinCostsVar,
+	}
+}

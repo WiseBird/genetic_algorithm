@@ -1,19 +1,22 @@
+/*
+The task is to split list of numbers in two groups such that the sum of one is 178 and the product of the other is 3120.
+*/
+
 package main
 
 import (
 	. "github.com/WiseBird/genetic_algorithm"
-	"github.com/WiseBird/genetic_algorithm/plotting"
 	"math"
 	log "github.com/cihub/seelog"
 )
 
 var (
-	list = []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}
+	List = []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}
 	finalSum = 178
 	finalProduct = 3120
 )
 
-func cost(c ChromosomeInterface) float64 {
+func Cost(c ChromosomeInterface) float64 {
 	bc := c.(*BinaryChromosome)
 	sum := 0
 	prod := 1
@@ -22,46 +25,31 @@ func cost(c ChromosomeInterface) float64 {
 
 	for i := 0; i < len(genes); i++ {
 		if genes[i] {
-			prod *= list[i]
+			prod *= List[i]
 		} else {
-			sum += list[i]
+			sum += List[i]
 		}
 	}
 
 	sumDiff := float64(sum - finalSum)
 	prodDiff := float64(prod - finalProduct)
 
-	return math.Abs(sumDiff) + math.Abs(prodDiff * prodDiff)
+	return math.Abs(sumDiff) + math.Abs(prodDiff)
 }
 
 func main() {
 	defer log.Flush()
 	setupLogger()
 
-	iterations := 1000
+	optimizer := createOptimizer()
+	best, _ := optimizer.Optimize()
 
-	statisticsOptions := NewStatisticsDefaultOptions().
-			TrackMinCosts().
-			TrackMeanCosts()
-	statisticsAggregator := NewStatisticsDefaultAggregator(statisticsOptions)
-	optimizer := createOptimizer(statisticsOptions)
-
-	plotting.NewPlotter().
-		AddPlotWithComputations(optimizer, statisticsAggregator, iterations).
-			Title("Partition 1-20").
-			AddMinCostDataSet().YConverter(plotting.Log10).Done().
-			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
-		Done().
-		Draw(8, 4, "partition.png")
-
-	log.Warnf("Duration: %v", statisticsAggregator.Duration())
-	log.Warnf("MinCosts: %v", statisticsAggregator.MinCosts())
-	log.Warnf("MeanCosts: %v", statisticsAggregator.MeanCosts())
+	log.Warnf("Baest: %v", best)
 }
 
-func createOptimizer(statisticsOptions StatisticsOptionsInterface) OptimizerInterface {
+func createOptimizer() OptimizerInterface {
 	popSize := 32
-	chromSize := len(list)
+	chromSize := len(List)
 	weedRate := 50.0
 	mutationProb := 0.05
 	generations := 200
@@ -72,12 +60,11 @@ func createOptimizer(statisticsOptions StatisticsOptionsInterface) OptimizerInte
 		Selector(NewRouletteWheelCostWeightingSelector()).
 		Breeder(NewOnePointBreeder(NewEmptyBinaryChromosome)).
 		Mutator(NewBinaryMutator(mutationProb)).
-		CostFunction(cost).
+		CostFunction(Cost).
 		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).
 			Min_Cost(0).
 			Max_MinCostAge(15)).
-		StatisticsOptions(statisticsOptions).
 		PopSize(popSize).
 		ChromSize(chromSize)
 }

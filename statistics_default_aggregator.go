@@ -29,6 +29,9 @@ func NewStatisticsDefaultAggregator(options *StatisticsDefaultOptions) *Statisti
 
 	return aggregator
 }
+func (aggregator *StatisticsDefaultAggregator) Options() *StatisticsDefaultOptions {
+	return aggregator.options.Copy()
+}
 func (aggregator *StatisticsDefaultAggregator) Aggregate(statistics StatisticsInterface) {
 	stats, ok := statistics.(*StatisticsDefault)
 	if !ok {

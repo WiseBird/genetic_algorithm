@@ -105,12 +105,6 @@ func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) {
     if err := plotter.saveFile(c, fileName); err != nil {
         panic(err)
     }
-
-	/*for _, p := range plotter.plots {
-	    if err := p.plot.Save(widthInch, heightInch, fileName); err != nil {
-            panic(err)
-	    }
-	}*/
 }
 func (plotter *Plotter) createCanvas(fileName string, plots int, w, h vg.Length) (canvas) {
 		h *= vg.Length(plots)
@@ -140,15 +134,16 @@ func (plotter *Plotter) createCanvas(fileName string, plots int, w, h vg.Length)
         }
 }
 func (plotter *Plotter) draw(plot *pplot.Plot, ind int, c canvas, w, h vg.Length) {
-        da := pplot.DrawArea{
-            Canvas: c,
-            Rect: pplot.Rect {
-            	Min: pplot.Point{0, h * vg.Length(ind)},
-            	Size: pplot.Point{w, h},
-        	},
-        }
+	_, canvasHeight := c.Size()
+    da := pplot.DrawArea{
+        Canvas: c,
+        Rect: pplot.Rect {
+        	Min: pplot.Point{0, canvasHeight - h * vg.Length(ind + 1)},
+        	Size: pplot.Point{w, h},
+    	},
+    }
 
-        plot.Draw(da)
+    plot.Draw(da)
 }
 func (plotter *Plotter) saveFile(c canvas, fileName string)  (err error) {
     f, err := os.Create(fileName)
