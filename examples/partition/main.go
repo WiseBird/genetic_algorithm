@@ -58,7 +58,7 @@ func createOptimizer() OptimizerInterface {
 		Weeder(NewSimpleWeeder(weedRate)).
 		Initializer(NewBinaryRandomInitializer()).
 		Selector(NewRouletteWheelCostWeightingSelector()).
-		Breeder(NewOnePointBreeder(NewEmptyBinaryChromosome)).
+		Crossover(NewOnePointCrossover(NewEmptyBinaryChromosome)).
 		Mutator(NewBinaryMutator(mutationProb)).
 		CostFunction(Cost).
 		StopCriterion(NewStopCriterionDefault().

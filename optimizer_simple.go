@@ -46,13 +46,13 @@ func (optimizer *SimpleOptimizer) breed() {
 	optimizer.selector.Prepare(optimizer.population)
 
 	for ;; {
-		chromsToCross := optimizer.selector.SelectMany(optimizer.breeder.ParentsCount())
+		chromsToCross := optimizer.selector.SelectMany(optimizer.crossover.ParentsCount())
 		log.Debugf("Parents:\n%v", chromsToCross)
 
 		var newChromosomes Chromosomes
 
 		if optimizer.crossoverProbability > rand.Float64() {
-			newChromosomes = optimizer.breeder.Crossover(chromsToCross)
+			newChromosomes = optimizer.crossover.Crossover(chromsToCross)
 			log.Debugf("Children\n%v\n", newChromosomes)
 		} else {
 			log.Debugf("Parents go to the new generation\n")

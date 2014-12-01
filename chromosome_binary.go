@@ -2,6 +2,7 @@ package genetic_algorithm
 
 import (
 	"fmt"
+	"bytes"
 )
 
 type BinaryGenes []bool
@@ -28,24 +29,20 @@ func NewBinaryChromosome(genes BinaryGenes) *BinaryChromosome {
 	return chrom
 }
 func NewEmptyBinaryChromosome(genesLen int) ChromosomeInterface {
-	chrom := new(BinaryChromosome)
-
-	chrom.ChromosomeBase = NewChromosomeBase()
-	chrom.genes = make(BinaryGenes, genesLen)
-
-	return chrom
+	return NewBinaryChromosome(make(BinaryGenes, genesLen))
 }
 func (chrom *BinaryChromosome) Genes() GenesInterface {
 	return chrom.genes
 }
 func (chrom *BinaryChromosome) String() string {
-	genes := ""
+	var buffer bytes.Buffer
+
 	for _, b := range chrom.genes {
 		if b {
-			genes += "1"
+			buffer.WriteString("1")
 		} else {
-			genes += "0"
+			buffer.WriteString("0")
 		}
 	}
-	return fmt.Sprintf("BC genes:%v, cost: %f", genes, chrom.costVal)
+	return fmt.Sprintf("BC genes:[%v], cost: %f", buffer.String(), chrom.costVal)
 }

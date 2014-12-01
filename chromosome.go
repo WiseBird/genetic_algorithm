@@ -3,6 +3,7 @@ package genetic_algorithm
 import (
 	"fmt"
 	log "github.com/cihub/seelog"
+	"bytes"
 )
 
 type EmptyChromosomeConstructor func(genesLen int) ChromosomeInterface
@@ -37,14 +38,15 @@ func (c Chromosomes) MeanCost() float64 {
 	return sum / float64(len(c))
 }
 func (c Chromosomes) String() string {
-	s := ""
+	var buffer bytes.Buffer
+
 	for i := 0; i < len(c); i++ {
 		if i != 0 {
-			s += "\n"
+			buffer.WriteString("\n")
 		}
-		s += fmt.Sprintf("%v", c[i])
+		buffer.WriteString(fmt.Sprintf("%v", c[i]))
 	}
-	return s
+	return buffer.String()
 }
 
 type GenesInterface interface {

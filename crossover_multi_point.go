@@ -7,41 +7,41 @@ import (
 	"sort"
 )
 
-type MultiPointBreeder struct {
+type MultiPointCrossover struct {
 	crossPointsCount int
 	chromConstr EmptyChromosomeConstructor
 	canCrossOnEdge bool
 }
-func NewMultiPointBreeder(chromConstr EmptyChromosomeConstructor, crossPointsCount int) *MultiPointBreeder {
+func NewMultiPointCrossover(chromConstr EmptyChromosomeConstructor, crossPointsCount int) *MultiPointCrossover {
 	if crossPointsCount <= 0 {
 		panic("crossPointsCount must be positive")
 	}
 
-	breeder := new(MultiPointBreeder)
+	crossover := new(MultiPointCrossover)
 
-	breeder.chromConstr = chromConstr
-	breeder.crossPointsCount = crossPointsCount
+	crossover.chromConstr = chromConstr
+	crossover.crossPointsCount = crossPointsCount
 
-	return breeder
+	return crossover
 }
-func NewOnePointBreeder(chromConstr EmptyChromosomeConstructor) *MultiPointBreeder {
-	return NewMultiPointBreeder(chromConstr, 1)
+func NewOnePointCrossover(chromConstr EmptyChromosomeConstructor) *MultiPointCrossover {
+	return NewMultiPointCrossover(chromConstr, 1)
 }
-func NewTwoPointBreeder(chromConstr EmptyChromosomeConstructor) *MultiPointBreeder {
-	return NewMultiPointBreeder(chromConstr, 2)
+func NewTwoPointCrossover(chromConstr EmptyChromosomeConstructor) *MultiPointCrossover {
+	return NewMultiPointCrossover(chromConstr, 2)
 }
 
-func (breeder *MultiPointBreeder) ParentsCount() int {
+func (crossover *MultiPointCrossover) ParentsCount() int {
 	return 2
 }
 // If true cross point can be selected on edge of chromosome
-// For example in case of one point breeder it will produce two copies of parents
-func (breeder *MultiPointBreeder) CanCrossOnEdge(val bool) *MultiPointBreeder {
-	breeder.canCrossOnEdge = val
-	return breeder
+// For example in case of one point crossover it will produce two copies of parents
+func (crossover *MultiPointCrossover) CanCrossOnEdge(val bool) *MultiPointCrossover {
+	crossover.canCrossOnEdge = val
+	return crossover
 }
-func (breeder *MultiPointBreeder) Crossover(parents Chromosomes) Chromosomes {
-	if len(parents) != breeder.ParentsCount() {
+func (crossover *MultiPointCrossover) Crossover(parents Chromosomes) Chromosomes {
+	if len(parents) != crossover.ParentsCount() {
 		panic("Incorrect parents count")
 	}
 
@@ -49,26 +49,26 @@ func (breeder *MultiPointBreeder) Crossover(parents Chromosomes) Chromosomes {
 	p2 := parents[1]
 
 	if p1.Genes().Len() != p2.Genes().Len() {
-		panic("Breeder do not support different chromosome size")
+		panic("Crossover do not support different chromosome size")
 	}
 
 	possibleCrossPoints := p1.Genes().Len() + 1
-	if !breeder.canCrossOnEdge {
+	if !crossover.canCrossOnEdge {
 		possibleCrossPoints -= 2
 	}
 
-	if possibleCrossPoints < breeder.crossPointsCount {
-		panic(fmt.Sprintf("Breeder can't split gene on %d parts", breeder.crossPointsCount + 1))
+	if possibleCrossPoints < crossover.crossPointsCount {
+		panic(fmt.Sprintf("Crossover can't split gene on %d parts", crossover.crossPointsCount + 1))
 	}
 
 	firstPossibleCrossPoint := 0
-	if !breeder.canCrossOnEdge {
+	if !crossover.canCrossOnEdge {
 		firstPossibleCrossPoint = 1
 	}
 
-	crossPointsMap := make(map[int]bool, breeder.crossPointsCount)
-	crossPointsList := make([]int, 0, breeder.crossPointsCount)
-	for i := 0; i < breeder.crossPointsCount; i++ {
+	crossPointsMap := make(map[int]bool, crossover.crossPointsCount)
+	crossPointsList := make([]int, 0, crossover.crossPointsCount)
+	for i := 0; i < crossover.crossPointsCount; i++ {
 		for ;; {
 			crossPoint := rand.Intn(possibleCrossPoints) + firstPossibleCrossPoint;
 			if !crossPointsMap[crossPoint] {
@@ -83,23 +83,23 @@ func (breeder *MultiPointBreeder) Crossover(parents Chromosomes) Chromosomes {
 
 	log.Tracef("Cross on %v\n", crossPointsList)
 
-	c1, c2 := breeder.crossover(p1, p2, crossPointsList)
+	c1, c2 := crossover.crossover(p1, p2, crossPointsList)
 
 	return Chromosomes{c1, c2}
 }
-func (breeder *MultiPointBreeder) crossover(p1, p2 ChromosomeInterface, crossPoints []int) (c1, c2 ChromosomeInterface) {
+func (crossover *MultiPointCrossover) crossover(p1, p2 ChromosomeInterface, crossPoints []int) (c1, c2 ChromosomeInterface) {
 	p1genes := p1.Genes()
 	p2genes := p2.Genes()
 
 	genesLen := p1.Genes().Len()
 
-	c1 = breeder.chromConstr(genesLen)
+	c1 = crossover.chromConstr(genesLen)
 	c1genes, ok := c1.Genes().(CopyableGenesInterface)
 	if !ok {
 		panic("Chromosome's genes does not implement CopyableGenesInterface")
 	}
 
-	c2 = breeder.chromConstr(genesLen)
+	c2 = crossover.chromConstr(genesLen)
 	c2genes, ok := c2.Genes().(CopyableGenesInterface)
 	if !ok {
 		panic("Chromosome's genes does not implement CopyableGenesInterface")

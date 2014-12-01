@@ -16,7 +16,7 @@ func (initializer *BinaryRandomInitializer) Init(count, chromSize int) Chromosom
 
 	for chromeInd := 0; chromeInd < count; chromeInd++ {
 
-		genes := make([]bool, chromSize)
+		genes := make(BinaryGenes, chromSize)
 		for geneInd := 0; geneInd < chromSize; geneInd++ {
 			x := rand.Intn(2)
 			genes[geneInd] = x == 1

@@ -11,7 +11,7 @@ type OptimizerBase struct {
 	initializer InitializerInterface
 	weeder WeederInterface
 	selector SelectorInterface
-	breeder BreederInterface
+	crossover CrossoverInterface
 	mutator MutatorInterface
 
 	costFunction CostFunction
@@ -48,8 +48,8 @@ func (optimizer *OptimizerBase) Selector(selector SelectorInterface) *OptimizerB
 	optimizer.selector = selector
 	return optimizer
 }
-func (optimizer *OptimizerBase) Breeder(breeder BreederInterface) *OptimizerBase {
-	optimizer.breeder = breeder
+func (optimizer *OptimizerBase) Crossover(crossover CrossoverInterface) *OptimizerBase {
+	optimizer.crossover = crossover
 	return optimizer
 }
 func (optimizer *OptimizerBase) Mutator(mutator MutatorInterface) *OptimizerBase {
@@ -87,8 +87,8 @@ func (optimizer *OptimizerBase) check() {
 	if optimizer.selector == nil {
 		panic("Selector must be set")
 	}
-	if optimizer.breeder == nil {
-		panic("Breeder must be set")
+	if optimizer.crossover == nil {
+		panic("Crossover must be set")
 	}
 	if optimizer.mutator == nil {
 		panic("Mutator must be set")

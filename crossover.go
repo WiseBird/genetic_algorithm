@@ -1,6 +1,6 @@
 package genetic_algorithm
 
-type BreederInterface interface {
+type CrossoverInterface interface {
 	ParentsCount() int
 	Crossover(Chromosomes) (Chromosomes)
 }

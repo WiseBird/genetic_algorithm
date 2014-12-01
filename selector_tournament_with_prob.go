@@ -41,6 +41,8 @@ func (selector *TournamentSelector) SelectInd() int {
 	for i := 0; i < selector.contestants; i++ {
 		contestants[i] = rand.Intn(len(selector.population))
 	}
+	
+	// Our population is sortes. Lesser index lesser cost.
 	sort.Sort(sort.IntSlice(contestants))
 
 	r := rand.Float64()

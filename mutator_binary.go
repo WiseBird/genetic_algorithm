@@ -11,7 +11,10 @@ func NewBinaryMutator(probability float64) *MutatorBase {
 	return mutator
 }
 func(mutator *BinaryMutator) MutateCromosome(chrom ChromosomeInterface, ind int) {
-	bc := chrom.(*BinaryChromosome)
+	bc, ok := chrom.(*BinaryChromosome)
+	if !ok {
+		panic("Expects BinaryChromosome")
+	}
 
 	bc.genes[ind] = !bc.genes[ind]
 }

@@ -47,7 +47,7 @@ func createOptimizer(statisticsAggregator *StatisticsDefaultAggregator) Optimize
 		Weeder(NewSimpleWeeder(weedRate)).
 		Initializer(NewBinaryRandomInitializer()).
 		Selector(NewRouletteWheelCostWeightingSelector()).
-		Breeder(NewOnePointBreeder(NewEmptyBinaryChromosome)).
+		Crossover(NewOnePointCrossover(NewEmptyBinaryChromosome)).
 		Mutator(NewBinaryMutator(mutationProb)).
 		CostFunction(partition.Cost).
 		StopCriterion(NewStopCriterionDefault().

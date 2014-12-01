@@ -25,6 +25,10 @@ func NewSimpleTournamentSelector(contestants int) *SimpleTournamentSelector {
 
 	return selector
 }
+func NewRandomSelector() *SimpleTournamentSelector {
+	return NewSimpleTournamentSelector(1)
+}
+
 func (selector *SimpleTournamentSelector) SelectInd() int {
 	var bestCost float64
 	bestInd := -1
