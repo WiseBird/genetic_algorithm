@@ -27,5 +27,6 @@ func(mutator *OrderedSwapMutator) MutateCromosome(chrom ChromosomeInterface, ind
 		}
 
 		bc.genes[ind], bc.genes[ind2] = bc.genes[ind2], bc.genes[ind]
+		break
 	}
 }

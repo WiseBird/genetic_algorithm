@@ -1,5 +1,5 @@
 /*
-The task is to split list of numbers in two groups such that the sum of one is 178 and the product of the other is 3120.
+Example of solving tsp.
 */
 
 package main
@@ -10,31 +10,36 @@ import (
 	log "github.com/cihub/seelog"
 )
 
-var (
-	List = []int{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}
-	finalSum = 178
-	finalProduct = 3120
-)
+
+type City struct {
+	X float64
+	Y float64
+}
 
 func Cost(c ChromosomeInterface) float64 {
-	bc := c.(*BinaryChromosome)
-	sum := 0
-	prod := 1
+	return CalcPath(cities, c)
+}
 
-	genes := bc.BinaryGenes()
+func CalcPath(cities []City, c ChromosomeInterface) float64 {
+	oc := c.(*OrderedChromosome)
+	genes := oc.OrderedGenes()
+
+	path := float64(0)
 
 	for i := 0; i < len(genes); i++ {
-		if genes[i] {
-			prod *= List[i]
+		if i == 0 {
+			path += calcDistance(cities[genes[0]], cities[genes[len(genes)-1]])
 		} else {
-			sum += List[i]
+			path += calcDistance(cities[genes[i-1]], cities[genes[i]])
 		}
 	}
 
-	sumDiff := float64(sum - finalSum)
-	prodDiff := float64(prod - finalProduct)
-
-	return math.Abs(sumDiff) + math.Abs(prodDiff)
+	return path
+}
+func calcDistance(c1 City, c2 City) float64 {
+	return math.Sqrt(
+		math.Pow(c1.X - c2.X, 2) + 
+		math.Pow(c1.Y - c2.Y, 2))
 }
 
 func main() {
@@ -49,21 +54,20 @@ func main() {
 
 func createOptimizer() OptimizerInterface {
 	popSize := 32
-	chromSize := len(List)
+	chromSize := len(cities)
 	weedRate := 50.0
 	mutationProb := 0.05
 	generations := 200
 
 	return NewIncrementalOptimizer().
 		Weeder(NewSimpleWeeder(weedRate)).
-		Initializer(NewBinaryRandomInitializer()).
-		Selector(NewRouletteWheelCostWeightingSelector()).
-		Crossover(NewOnePointCrossover(NewEmptyBinaryChromosome)).
-		Mutator(NewBinaryMutator(mutationProb)).
+		Initializer(NewOrderedRandomInitializer()).
+		Selector(NewRouletteWheelRankWeightingSelector()).
+		Crossover(NewOrderCrossover()).
+		Mutator(NewOrderedSwapMutator(mutationProb)).
 		CostFunction(Cost).
 		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).
-			Min_Cost(0).
 			Max_GenerationsWithoutImprovements(15)).
 		PopSize(popSize).
 		ChromSize(chromSize)

@@ -34,6 +34,9 @@ func NewEmptyBinaryChromosome(genesLen int) ChromosomeInterface {
 func (chrom *BinaryChromosome) Genes() GenesInterface {
 	return chrom.genes
 }
+func (chrom *BinaryChromosome) BinaryGenes() BinaryGenes {
+	return chrom.genes
+}
 func (chrom *BinaryChromosome) String() string {
 	var buffer bytes.Buffer
 
