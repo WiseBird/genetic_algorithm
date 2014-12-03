@@ -50,7 +50,7 @@ func (s *CrossoverSuite) TestTwoPointCrossover_crossover(c *C) {
 
 
 func (s *CrossoverSuite) TestOrderCrossover_firstCrossPoint(c *C) {
-	crossover := NewOrderCrossover()
+	crossover := newOrderCrossover(nil)
 
 	for i := 0; i < 10; i++ {
 		p := crossover.chooseFirstCrossPoint(1) 
@@ -60,7 +60,7 @@ func (s *CrossoverSuite) TestOrderCrossover_firstCrossPoint(c *C) {
 	}
 }
 func (s *CrossoverSuite) TestOrderCrossover_secondCrossPoint_notEqualsFirst(c *C) {
-	crossover := NewOrderCrossover().CanProduceCopiesOfParents(true)
+	crossover := newOrderCrossover(nil).CanProduceCopiesOfParents(true)
 
 	for i := 0; i < 10; i++ {
 		p := crossover.chooseSecondCrossPoint(1, 0) 
@@ -70,7 +70,7 @@ func (s *CrossoverSuite) TestOrderCrossover_secondCrossPoint_notEqualsFirst(c *C
 	}
 }
 func (s *CrossoverSuite) TestOrderCrossover_secondCrossPoint_cantCopiesOfParent(c *C) {
-	crossover := NewOrderCrossover().CanProduceCopiesOfParents(false)
+	crossover := newOrderCrossover(nil).CanProduceCopiesOfParents(false)
 
 	for i := 0; i < 10; i++ {
 		p := crossover.chooseSecondCrossPoint(2, 0) 
@@ -79,7 +79,7 @@ func (s *CrossoverSuite) TestOrderCrossover_secondCrossPoint_cantCopiesOfParent(
 		}
 	}
 }
-func (s *CrossoverSuite) TestOrderCrossover_crossover(c *C) {
+func (s *CrossoverSuite) TestOrderCrossoverVer1_crossover(c *C) {
 	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	parent2Genes := OrderedGenes { 8, 4, 1, 5, 9, 3, 6, 2, 7 }
 
@@ -89,7 +89,35 @@ func (s *CrossoverSuite) TestOrderCrossover_crossover(c *C) {
 	parent1 := NewOrderedChromosome(parent1Genes)
 	parent2 := NewOrderedChromosome(parent2Genes)
 
-	c1, c2 := NewOrderCrossover().crossover(parent1, parent2, 2, 6)
+	c1, c2 := NewOrderCrossoverVer1().crossover(parent1, parent2, 2, 6)
+
+	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
+}
+func (s *CrossoverSuite) TestOrderCrossoverVer1_crossoverOnEnd(c *C) {
+	parent1Genes := OrderedGenes { 1, 2, 3, 4 }
+	parent2Genes := OrderedGenes { 2, 4, 1, 3 }
+
+	expectedPart1Genes := OrderedGenes { 2, 1, 3, 4 }
+	expectedPart2Genes := OrderedGenes { 1, 2, 4, 3 }
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	c1, c2 := NewOrderCrossoverVer1().crossover(parent1, parent2, 3, 4)
+
+	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
+}
+func (s *CrossoverSuite) TestOrderCrossoverVer2_crossover(c *C) {
+	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	parent2Genes := OrderedGenes { 8, 4, 1, 5, 9, 3, 6, 2, 7 }
+
+	expectedPart1Genes := OrderedGenes { 8, 1, 3, 4, 5, 6, 9, 2, 7 }
+	expectedPart2Genes := OrderedGenes { 2, 4, 1, 5, 9, 3, 6, 7, 8 }
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	c1, c2 := NewOrderCrossoverVer2().crossover(parent1, parent2, 2, 6)
 
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }

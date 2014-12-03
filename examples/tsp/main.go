@@ -63,7 +63,7 @@ func createOptimizer() OptimizerInterface {
 		Weeder(NewSimpleWeeder(weedRate)).
 		Initializer(NewOrderedRandomInitializer()).
 		Selector(NewRouletteWheelRankWeightingSelector()).
-		Crossover(NewOrderCrossover()).
+		Crossover(NewOrderCrossoverVer1()).
 		Mutator(NewOrderedSwapMutator(mutationProb)).
 		CostFunction(Cost).
 		StopCriterion(NewStopCriterionDefault().
