@@ -30,7 +30,11 @@ func NewOrderedChromosome(genes OrderedGenes) *OrderedChromosome {
 	return chrom
 }
 func NewEmptyOrderedChromosome(genesLen int) ChromosomeInterface {
-	return NewOrderedChromosome(make(OrderedGenes, genesLen))
+	genes := make(OrderedGenes, genesLen)
+	for i := 0; i < len(genes); i++ {
+		genes[i] = -1
+	}
+	return NewOrderedChromosome(genes)
 }
 func (chrom *OrderedChromosome) Genes() GenesInterface {
 	return chrom.genes

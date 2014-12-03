@@ -54,7 +54,7 @@ func (crossover *orderCrossover) Crossover(parents Chromosomes) Chromosomes {
 	crossPoint1 := crossover.chooseFirstCrossPoint(genesLen)
 	crossPoint2 := crossover.chooseSecondCrossPoint(genesLen, crossPoint1)
 
-	log.Tracef("Cross on %d:%d\n", crossPoint1, crossPoint2)
+	log.Tracef("Cross on %d:%d", crossPoint1, crossPoint2)
 
 	c1, c2 := crossover.crossover(p1, p2, crossPoint1, crossPoint2)
 
@@ -93,6 +93,20 @@ func (crossover *orderCrossover) crossover(p1, p2 *OrderedChromosome, crossPoint
 
 // Crossover for ordered chromosomes.
 // Tends to preserve relative order.
+//
+// parent1:       A B C D E
+// parent2:       d b e a c
+//
+// cross section: _ * * _ _
+//
+// child1 step1:  _ B C _ _
+//
+// parent2:       d b e a c
+// filler block:  d _ e a _
+// The first element of filler block is added at the end of the cross setion.
+//
+// child1:        a B C d e
+//
 // Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley , Nam-wook Yoo (1995)
 // http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3585
 type OrderCrossoverVer1 struct { }
@@ -102,14 +116,14 @@ func NewOrderCrossoverVer1() *orderCrossover {
 func (crossover *OrderCrossoverVer1) copyFromFillerString(child, filler OrderedGenes, crossPoint1, crossPoint2 int) {
 	genesLen := len(filler)
 
-	cutSection := make(map[int]bool, crossPoint2 - crossPoint1)
+	crossSection := make(map[int]bool, crossPoint2 - crossPoint1)
 	for i := crossPoint1; i < crossPoint2; i++ {
-		cutSection[child[i]] = true
+		crossSection[child[i]] = true
 	}
 
 	ind := crossPoint2 % genesLen
 	for i := 0; i < genesLen; i++ {
-		if cutSection[filler[i]] {
+		if crossSection[filler[i]] {
 			continue
 		}
 
@@ -120,6 +134,20 @@ func (crossover *OrderCrossoverVer1) copyFromFillerString(child, filler OrderedG
 
 // Crossover for ordered chromosomes.
 // Tends to preserve relative order.
+//
+// parent1:       A B C D E
+// parent2:       d b e a c
+//
+// cross section: _ * * _ _
+//
+// child1 step1:  _ B C _ _
+//
+// parent2:       d b e a c
+// filler block:  d _ e a _
+// The first element of filler block is added at the start of the child.
+//
+// child1:        d B C e a
+//
 // Source: On Genetic Crossover Operators for Relative Order Preservation
 // http://www.dmi.unict.it/mpavone/nc-cs/materiale/moscato89.pdf
 type OrderCrossoverVer2 struct { }
@@ -129,14 +157,14 @@ func NewOrderCrossoverVer2() *orderCrossover {
 func (crossover *OrderCrossoverVer2) copyFromFillerString(child, filler OrderedGenes, crossPoint1, crossPoint2 int) {
 	genesLen := len(filler)
 
-	cutSection := make(map[int]bool, crossPoint2 - crossPoint1)
+	crossSection := make(map[int]bool, crossPoint2 - crossPoint1)
 	for i := crossPoint1; i < crossPoint2; i++ {
-		cutSection[child[i]] = true
+		crossSection[child[i]] = true
 	}
 
 	ind := 0
 	for i := 0; i < genesLen; i++ {
-		if cutSection[filler[i]] {
+		if crossSection[filler[i]] {
 			continue
 		}
 		if ind == crossPoint1 {

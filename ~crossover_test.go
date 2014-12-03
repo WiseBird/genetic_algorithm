@@ -122,6 +122,20 @@ func (s *CrossoverSuite) TestOrderCrossoverVer2_crossover(c *C) {
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }
 
+func (s *CrossoverSuite) TestPositionCrossover_crossover(c *C) {
+	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
+	parent2Genes := OrderedGenes { 8, 4, 1, 5, 9, 3, 6, 2, 7 }
+
+	expectedPart1Genes := OrderedGenes { 1, 8, 3, 4, 5, 6, 7, 9, 2 }
+	expectedPart2Genes := OrderedGenes { 8, 2, 1, 4, 5, 3, 6, 7, 9 }
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	c1, c2 := NewPositionCrossover().crossover(parent1, parent2, []int { 0, 2, 5, 6 })
+
+	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
+}
 
 func compareTwoBinaryGenesWithoutOrder(c *C, c1, c2 ChromosomeInterface, ec1, ec2 BinaryGenes) {
 	var expC2 BinaryGenes
