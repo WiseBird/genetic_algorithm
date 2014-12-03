@@ -7,15 +7,23 @@ import (
 )
 
 type OrderedGenes []int
-func (b OrderedGenes) Len() int { return len(b) }
-/*func (b OrderedGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
+func (g OrderedGenes) Len() int { return len(g) }
+/*func (g OrderedGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
 	bgenes, ok := genes.(OrderedGenes)
 	if !ok {
 		panic("Unexpected genes. Expected OrderedGenes")
 	}
 
-	return copy(b[from1:], bgenes[from2:to2])
+	return copy(g[from1:], bgenes[from2:to2])
 }*/
+func (g OrderedGenes) Ind(val int) int {
+	for i := 0; i < len(g); i++ {
+		if g[i] == val {
+			return i
+		}
+	}
+	return -1
+}
 
 type OrderedChromosome struct {
 	*ChromosomeBase
@@ -41,6 +49,9 @@ func (chrom *OrderedChromosome) Genes() GenesInterface {
 }
 func (chrom *OrderedChromosome) OrderedGenes() OrderedGenes {
 	return chrom.genes
+}
+func (chrom *OrderedChromosome) Ind(val int) int {
+	return chrom.genes.Ind(val)
 }
 func (chrom *OrderedChromosome) String() string {
 	var buffer bytes.Buffer

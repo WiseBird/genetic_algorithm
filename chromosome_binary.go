@@ -6,14 +6,14 @@ import (
 )
 
 type BinaryGenes []bool
-func (b BinaryGenes) Len() int { return len(b) }
-func (b BinaryGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
+func (g BinaryGenes) Len() int { return len(g) }
+func (g BinaryGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
 	bgenes, ok := genes.(BinaryGenes)
 	if !ok {
 		panic("Unexpected genes. Expected BinaryGenes")
 	}
 
-	return copy(b[from1:], bgenes[from2:to2])
+	return copy(g[from1:], bgenes[from2:to2])
 }
 
 type BinaryChromosome struct {

@@ -137,6 +137,21 @@ func (s *CrossoverSuite) TestPositionCrossover_crossover(c *C) {
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }
 
+func (s *CrossoverSuite) TestPartiallyMappedCrossover_crossover(c *C) {
+	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7 }
+	parent2Genes := OrderedGenes { 3, 6, 5, 2, 1, 4, 7 }
+
+	expectedPart1Genes := OrderedGenes { 1, 6, 3, 4, 5, 2, 7 }
+	expectedPart2Genes := OrderedGenes { 3, 4, 5, 2, 1, 6, 7 }
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	c1, c2 := NewPartiallyMappedCrossover().crossover(parent1, parent2, 2, 5)
+
+	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
+}
+
 func compareTwoBinaryGenesWithoutOrder(c *C, c1, c2 ChromosomeInterface, ec1, ec2 BinaryGenes) {
 	var expC2 BinaryGenes
 	if reflect.DeepEqual(c1.Genes(), ec1) {
