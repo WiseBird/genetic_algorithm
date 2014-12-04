@@ -3,14 +3,13 @@ package genetic_algorithm
 import (
 	"math/rand"
 	log "github.com/cihub/seelog"
-	"fmt"
 	"sort"
 )
 
 type MultiPointCrossover struct {
 	crossPointsCount int
 	chromConstr EmptyChromosomeConstructor
-	canCrossOnEdge bool
+	canProduceCopiesOfParents bool
 }
 func NewMultiPointCrossover(chromConstr EmptyChromosomeConstructor, crossPointsCount int) *MultiPointCrossover {
 	if crossPointsCount <= 0 {
@@ -34,10 +33,8 @@ func NewTwoPointCrossover(chromConstr EmptyChromosomeConstructor) *MultiPointCro
 func (crossover *MultiPointCrossover) ParentsCount() int {
 	return 2
 }
-// If true cross point can be selected on edge of chromosome
-// For example in case of one point crossover it will produce two copies of parents
-func (crossover *MultiPointCrossover) CanCrossOnEdge(val bool) *MultiPointCrossover {
-	crossover.canCrossOnEdge = val
+func (crossover *MultiPointCrossover) CanProduceCopiesOfParents(val bool) *MultiPointCrossover {
+	crossover.canProduceCopiesOfParents = val
 	return crossover
 }
 func (crossover *MultiPointCrossover) Crossover(parents Chromosomes) Chromosomes {
@@ -48,37 +45,15 @@ func (crossover *MultiPointCrossover) Crossover(parents Chromosomes) Chromosomes
 	p1 := parents[0]
 	p2 := parents[1]
 
-	if p1.Genes().Len() != p2.Genes().Len() {
+	genesLen := p1.Genes().Len()
+
+	if genesLen != p2.Genes().Len() {
 		panic("Crossover do not support different chromosome size")
 	}
 
-	possibleCrossPoints := p1.Genes().Len() + 1
-	if !crossover.canCrossOnEdge {
-		possibleCrossPoints -= 2
-	}
+	crossover.checkGenesLen(genesLen)
 
-	if possibleCrossPoints < crossover.crossPointsCount {
-		panic(fmt.Sprintf("Crossover can't split gene on %d parts", crossover.crossPointsCount + 1))
-	}
-
-	firstPossibleCrossPoint := 0
-	if !crossover.canCrossOnEdge {
-		firstPossibleCrossPoint = 1
-	}
-
-	crossPointsMap := make(map[int]bool, crossover.crossPointsCount)
-	crossPointsList := make([]int, 0, crossover.crossPointsCount)
-	for i := 0; i < crossover.crossPointsCount; i++ {
-		for ;; {
-			crossPoint := rand.Intn(possibleCrossPoints) + firstPossibleCrossPoint;
-			if !crossPointsMap[crossPoint] {
-				crossPointsMap[crossPoint] = true
-				crossPointsList = append(crossPointsList, crossPoint)
-				break
-			}
-		}
-	}
-
+	crossPointsList := crossover.chooseCrossPoints(genesLen)
 	sort.Sort(sort.IntSlice(crossPointsList))
 
 	log.Tracef("Cross on %v\n", crossPointsList)
@@ -86,6 +61,46 @@ func (crossover *MultiPointCrossover) Crossover(parents Chromosomes) Chromosomes
 	c1, c2 := crossover.crossover(p1, p2, crossPointsList)
 
 	return Chromosomes{c1, c2}
+}
+func (crossover *MultiPointCrossover) checkGenesLen(genesLen int) {
+	possibleCrossPoints := genesLen + 1
+	if !crossover.canProduceCopiesOfParents && crossover.crossPointsCount <= 2 {
+		if crossover.crossPointsCount == 1 {
+			possibleCrossPoints -= 2
+		} else {
+			possibleCrossPoints--
+		}
+	}
+
+	if possibleCrossPoints < crossover.crossPointsCount {
+		panic("Chromosome too short")
+	}
+}
+func (crossover *MultiPointCrossover) chooseCrossPoints(genesLen int) []int {
+	if crossover.crossPointsCount == 1 {
+		if crossover.canProduceCopiesOfParents {
+			return []int { rand.Intn(genesLen + 1) }
+		} else {
+			return []int { rand.Intn(genesLen - 1) + 1 }
+		}
+	} else if crossover.crossPointsCount == 2 {
+		p1, p2 := chooseTwoPointCrossSection(genesLen, crossover.canProduceCopiesOfParents)
+		return []int { p1, p2 }
+	}
+
+	crossPointsMap := make(map[int]bool, crossover.crossPointsCount)
+	crossPointsList := make([]int, 0, crossover.crossPointsCount)
+	for i := 0; i < crossover.crossPointsCount; i++ {
+		for ;; {
+			crossPoint := rand.Intn(genesLen + 1)
+			if !crossPointsMap[crossPoint] {
+				crossPointsMap[crossPoint] = true
+				crossPointsList = append(crossPointsList, crossPoint)
+				break
+			}
+		}
+	}
+	return crossPointsList
 }
 func (crossover *MultiPointCrossover) crossover(p1, p2 ChromosomeInterface, crossPoints []int) (c1, c2 ChromosomeInterface) {
 	p1genes := p1.Genes()

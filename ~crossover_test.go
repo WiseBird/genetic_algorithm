@@ -3,49 +3,31 @@ package genetic_algorithm
 import ( 
 	. "gopkg.in/check.v1"
 	"reflect"
+	"sort"
 )
 
 type CrossoverSuite struct{}
 var _ = Suite(&CrossoverSuite{})
 
-func (s *CrossoverSuite) TestOnePointCrossover_CannotOnEdge_crossover(c *C) {
-	parent1Genes := BinaryGenes { true, true }
-	parent2Genes := BinaryGenes { false, false }
+func (s *CrossoverSuite) TestMultiPointCrossover_chooseCrossPoints(c *C) {
+	onePointCrossover := NewOnePointCrossover(NewEmptyBinaryChromosome)
+	ps := onePointCrossover.chooseCrossPoints(2)
+	if ps[0] != 1 {
+		c.Fatalf("One point crossover didn't choose middle point. choose %d", ps[0])
+	}
 
-	expectedPart1Genes := BinaryGenes { true, false }
-	expectedPart2Genes := BinaryGenes { false, true }
+	onePointCrossover.CanProduceCopiesOfParents(true)
+	ps = onePointCrossover.chooseCrossPoints(1)
+	if ps[0] != 0 && ps[0] != 1 {
+		c.Fatalf("One point crossover choose wrong point %d", ps[0])
+	}
 
-	parent1 := NewBinaryChromosome(parent1Genes)
-	parent2 := NewBinaryChromosome(parent2Genes)
+	// two point crossover uses chooseTwoPointCrossSection
 
-	children := NewOnePointCrossover(NewEmptyBinaryChromosome).Crossover([]ChromosomeInterface {parent1, parent2})
-
-	compareTwoBinaryGenesWithoutOrder(c, children[0], children[1], expectedPart1Genes, expectedPart2Genes)
-}
-func (s *CrossoverSuite) TestOnePointCrossover_CanOnEdge_crossover(c *C) {
-	parent1Genes := BinaryGenes { true }
-	parent2Genes := BinaryGenes { false }
-
-	parent1 := NewBinaryChromosome(parent1Genes)
-	parent2 := NewBinaryChromosome(parent2Genes)
-
-	children := NewOnePointCrossover(NewEmptyBinaryChromosome).CanCrossOnEdge(true).Crossover([]ChromosomeInterface {parent1, parent2})
-
-	compareTwoBinaryGenesWithoutOrder(c, children[0], children[1], parent1Genes, parent2Genes)
-}
-func (s *CrossoverSuite) TestTwoPointCrossover_crossover(c *C) {
-	parent1Genes := BinaryGenes { true, true, true }
-	parent2Genes := BinaryGenes { false, false, false }
-
-	expectedPart1Genes := BinaryGenes { true, false, true }
-	expectedPart2Genes := BinaryGenes { false, true, false }
-
-	parent1 := NewBinaryChromosome(parent1Genes)
-	parent2 := NewBinaryChromosome(parent2Genes)
-
-	children := NewTwoPointCrossover(NewEmptyBinaryChromosome).Crossover([]ChromosomeInterface {parent1, parent2})
-
-	compareTwoBinaryGenesWithoutOrder(c, children[0], children[1], expectedPart1Genes, expectedPart2Genes)
+	multiPonintCrossover := NewMultiPointCrossover(NewEmptyBinaryChromosome, 3)
+	ps = multiPonintCrossover.chooseCrossPoints(2)
+	sort.Sort(sort.IntSlice(ps))
+	c.Assert(ps, DeepEquals, []int{0,1,2})
 }
 
 func (s *CrossoverSuite) TestOrderCrossoverVer1_crossover(c *C) {
