@@ -5,6 +5,7 @@ import (
 	log "github.com/cihub/seelog"
 )
 // Crossover for ordered chromosomes.
+// Generalization of OrderCrossoverVer2.
 // Tends to preserve relative order.
 //
 // parent1:       A B C D E

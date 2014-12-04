@@ -37,6 +37,26 @@ func (s *HelperSuite) Test_MeanFloat64Arr_BigNumbers(c *C) {
 	c.Assert(meanFloat64Arr(values), DeepEquals, result)
 }
 
+func (s *HelperSuite) Test_chooseTwoPointCrossSection_firstCrossPoint(c *C) {
+	p, _ := chooseTwoPointCrossSection(1, true)
+	if p != 0 {
+		c.Fatalf("Choose inappropriate point: %v", p)
+	}
+}
+func (s *HelperSuite) Test_chooseTwoPointCrossSection_secondCrossPoint_notEqualsFirst(c *C) {
+	_, p := chooseTwoPointCrossSection(1, true)
+	if p != 1 {
+		c.Fatalf("Choose inappropriate point: %v", p)
+	}
+}
+func (s *HelperSuite) Test_chooseTwoPointCrossSection_secondCrossPoint_cantCopiesOfParent(c *C) {
+	for i := 0; i < 10; i++ {
+		p1, p2 := chooseTwoPointCrossSection(2, false) 
+		if ((p1 != 0) || (p2 != 1)) && ((p1 != 1) || (p2 != 2)) {
+			c.Fatalf("Choose inappropriate points: %d:%d", p2, p2)
+		}
+	}
+}
 
 
 //Within Delta Custom Checker

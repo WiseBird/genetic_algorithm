@@ -48,37 +48,6 @@ func (s *CrossoverSuite) TestTwoPointCrossover_crossover(c *C) {
 	compareTwoBinaryGenesWithoutOrder(c, children[0], children[1], expectedPart1Genes, expectedPart2Genes)
 }
 
-
-func (s *CrossoverSuite) TestOrderCrossover_firstCrossPoint(c *C) {
-	crossover := newOrderCrossover(nil)
-
-	for i := 0; i < 10; i++ {
-		p := crossover.chooseFirstCrossPoint(1) 
-		if p != 0 {
-			c.Fatalf("Choose inappropriate point: %v", p)
-		}
-	}
-}
-func (s *CrossoverSuite) TestOrderCrossover_secondCrossPoint_notEqualsFirst(c *C) {
-	crossover := newOrderCrossover(nil).CanProduceCopiesOfParents(true)
-
-	for i := 0; i < 10; i++ {
-		p := crossover.chooseSecondCrossPoint(1, 0) 
-		if p != 1 {
-			c.Fatalf("Choose inappropriate point: %v", p)
-		}
-	}
-}
-func (s *CrossoverSuite) TestOrderCrossover_secondCrossPoint_cantCopiesOfParent(c *C) {
-	crossover := newOrderCrossover(nil).CanProduceCopiesOfParents(false)
-
-	for i := 0; i < 10; i++ {
-		p := crossover.chooseSecondCrossPoint(2, 0) 
-		if p != 1 {
-			c.Fatalf("Choose inappropriate point: %v", p)
-		}
-	}
-}
 func (s *CrossoverSuite) TestOrderCrossoverVer1_crossover(c *C) {
 	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	parent2Genes := OrderedGenes { 8, 4, 1, 5, 9, 3, 6, 2, 7 }

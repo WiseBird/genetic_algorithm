@@ -1,7 +1,6 @@
 package genetic_algorithm
 
 import (
-	"math/rand"
 	log "github.com/cihub/seelog"
 )
 type orderCrossover struct {
@@ -51,24 +50,13 @@ func (crossover *orderCrossover) Crossover(parents Chromosomes) Chromosomes {
 		panic("Crossover can only produce copies of parents if genesLen < 2")
 	}
 
-	crossPoint1 := crossover.chooseFirstCrossPoint(genesLen)
-	crossPoint2 := crossover.chooseSecondCrossPoint(genesLen, crossPoint1)
+	crossPoint1, crossPoint2 := chooseTwoPointCrossSection(genesLen, crossover.canProduceCopiesOfParents)
 
 	log.Tracef("Cross on %d:%d", crossPoint1, crossPoint2)
 
 	c1, c2 := crossover.crossover(p1, p2, crossPoint1, crossPoint2)
 
 	return Chromosomes{c1, c2}
-}
-func (crossover *orderCrossover) chooseFirstCrossPoint(genesLen int) int {
-	return rand.Intn(genesLen)
-}
-func (crossover *orderCrossover) chooseSecondCrossPoint(genesLen, crossPoint1 int) int {
-	if !crossover.canProduceCopiesOfParents && crossPoint1 == 0 {
-		return rand.Intn(genesLen - 1) + 1
-	} else {
-		return rand.Intn(genesLen - crossPoint1) + 1 + crossPoint1
-	}
 }
 func (crossover *orderCrossover) crossover(p1, p2 *OrderedChromosome, crossPoint1, crossPoint2 int) (c1, c2 ChromosomeInterface) {
 	p1genes := p1.OrderedGenes()

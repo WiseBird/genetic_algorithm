@@ -2,6 +2,7 @@ package genetic_algorithm
 
 import (
 	"math"
+	"math/rand"
 )
 
 // https://hg.python.org/cpython/file/4480506137ed/Lib/statistics.py#l453
@@ -116,4 +117,15 @@ func varianceFloat64(values []float64) float64 {
 // Population variance
 func pvarianceFloat64(values []float64) float64 {
 	return ssFloat64(values) / float64(len(values))
+}
+
+func chooseTwoPointCrossSection(genesLen int, canProduceCopiesOfParents bool) (crossPoint1 int, crossPoint2 int) {
+	crossPoint1 = rand.Intn(genesLen)
+
+	if !canProduceCopiesOfParents && crossPoint1 == 0 {
+		crossPoint2 = rand.Intn(genesLen - 1) + 1
+	} else {
+		crossPoint2 = rand.Intn(genesLen - crossPoint1) + 1 + crossPoint1
+	}
+	return
 }
