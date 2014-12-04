@@ -4,14 +4,14 @@ import (
 	. "github.com/WiseBird/genetic_algorithm"
 	"math"
 
-    pplot "code.google.com/p/plotinum/plot"
-    "code.google.com/p/plotinum/plotter"
-    "code.google.com/p/plotinum/plotutil"
+	pplot "code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/plotter"
+	"code.google.com/p/plotinum/plotutil"
 
-    "io"
-    "os"
-    "path/filepath"
-    "strings"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/vgeps"
@@ -22,33 +22,34 @@ import (
 
 var (
 	Log10 = func(f float64) float64 {
-        if f > 0 {
-	        return math.Log10(f)
-	    } else if f < 0 {
-	    	return -1 * math.Log10(math.Abs(f))
-	    } else {
-	    	return 0
-	    }
+		if f > 0 {
+			return math.Log10(f)
+		} else if f < 0 {
+			return -1 * math.Log10(math.Abs(f))
+		} else {
+			return 0
+		}
 	}
 	CostsConverter = func(costs []float64) plotter.XYs {
-	    pts := make(plotter.XYs, len(costs))
-	    for i, cost := range costs {
-	        pts[i].X = float64(i)
-	        pts[i].Y = cost
-	    }
-	    return pts
+		pts := make(plotter.XYs, len(costs))
+		for i, cost := range costs {
+			pts[i].X = float64(i)
+			pts[i].Y = cost
+		}
+		return pts
 	}
 )
 
 type canvas interface {
-    vg.Canvas
-    Size() (w, h vg.Length)
-    io.WriterTo
+	vg.Canvas
+	Size() (w, h vg.Length)
+	io.WriterTo
 }
 
 type Plotter struct {
 	plots []*plot
 }
+
 func NewPlotter() *Plotter {
 	plotter := new(Plotter)
 
@@ -56,43 +57,33 @@ func NewPlotter() *Plotter {
 
 	return plotter
 }
-func (plotter *Plotter) AddPlot(statisticsAggregator StatisticsAggregatorInterface) *plot {
-	plot := newPlot(plotter, nil, statisticsAggregator, 1)
+func (plotter *Plotter) AddPlotWithData(data StatisticsDataInterface) *plot {
+	plot := newPlot(plotter, nil, data)
 	plotter.plots = append(plotter.plots, plot)
 
 	return plot
 }
-func (plotter *Plotter) AddPlotWithComputation(optimizer OptimizerInterface, statisticsAggregator StatisticsAggregatorInterface) *plot {
-	plot := newPlot(plotter, optimizer, statisticsAggregator, 1)
+func (plotter *Plotter) AddPlot(optimizer OptimizerInterface) *plot {
+	plot := newPlot(plotter, optimizer, nil)
 	plotter.plots = append(plotter.plots, plot)
 
 	return plot
 }
-func (plotter *Plotter) AddPlotWithComputations(optimizer OptimizerInterface, statisticsAggregator StatisticsAggregatorInterface, iterations int) *plot {
-	plot := newPlot(plotter, optimizer, statisticsAggregator, iterations)
-	plotter.plots = append(plotter.plots, plot)
-
-	return plot
-}
-func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) {
+func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) []StatisticsDataInterface {
 	for _, p := range plotter.plots {
 		if p.optimizer != nil {
-			for i := 0; i < p.iterations; i++ {
-				_, statistics := p.optimizer.Optimize()
-				p.statisticsAggregator.Aggregate(statistics)
-			}
-			p.statisticsAggregator.Compute()
+			_, p.statisticsData = p.optimizer.Optimize()
 		}
 
 		for _, dataSet := range p.dataSets {
-		    err := plotutil.AddLinePoints(
-		    	p.plot,
-		    	dataSet.name,
-	    		dataSet.values(p.statisticsAggregator))
+			err := plotutil.AddLinePoints(
+				p.plot,
+				dataSet.name,
+				dataSet.values(p.statisticsData))
 
-		    if err != nil {
-	            panic(err)
-		    }
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 
@@ -102,89 +93,94 @@ func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) {
 		plotter.draw(p.plot, i, c, w, h)
 	}
 
-    if err := plotter.saveFile(c, fileName); err != nil {
-        panic(err)
-    }
+	if err := plotter.saveFile(c, fileName); err != nil {
+		panic(err)
+	}
+
+	data := make([]StatisticsDataInterface, len(plotter.plots))
+	for i, p := range plotter.plots {
+		data[i] = p.statisticsData
+	}
+	return data
 }
-func (plotter *Plotter) createCanvas(fileName string, plots int, w, h vg.Length) (canvas) {
-		h *= vg.Length(plots)
+func (plotter *Plotter) createCanvas(fileName string, plots int, w, h vg.Length) canvas {
+	h *= vg.Length(plots)
 
-        switch ext := strings.ToLower(filepath.Ext(fileName)); ext {
+	switch ext := strings.ToLower(filepath.Ext(fileName)); ext {
 
-        case ".eps":
-                return vgeps.NewTitle(w, h, fileName)
+	case ".eps":
+		return vgeps.NewTitle(w, h, fileName)
 
-        case ".jpg", ".jpeg":
-                return vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
+	case ".jpg", ".jpeg":
+		return vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
 
-        case ".pdf":
-                return vgpdf.New(w, h)
+	case ".pdf":
+		return vgpdf.New(w, h)
 
-        case ".png":
-                return vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
+	case ".png":
+		return vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
 
-        case ".svg":
-                return vgsvg.New(w, h)
+	case ".svg":
+		return vgsvg.New(w, h)
 
-        case ".tiff":
-                return vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
+	case ".tiff":
+		return vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
 
-        default:
-                panic("Unsupported file extension: " + ext)
-        }
+	default:
+		panic("Unsupported file extension: " + ext)
+	}
 }
 func (plotter *Plotter) draw(plot *pplot.Plot, ind int, c canvas, w, h vg.Length) {
 	_, canvasHeight := c.Size()
-    da := pplot.DrawArea{
-        Canvas: c,
-        Rect: pplot.Rect {
-        	Min: pplot.Point{0, canvasHeight - h * vg.Length(ind + 1)},
-        	Size: pplot.Point{w, h},
-    	},
-    }
+	da := pplot.DrawArea{
+		Canvas: c,
+		Rect: pplot.Rect{
+			Min:  pplot.Point{0, canvasHeight - h*vg.Length(ind+1)},
+			Size: pplot.Point{w, h},
+		},
+	}
 
-    plot.Draw(da)
+	plot.Draw(da)
 }
-func (plotter *Plotter) saveFile(c canvas, fileName string)  (err error) {
-    f, err := os.Create(fileName)
-    if err != nil {
-            return err
-    }
-    if _, err = c.WriteTo(f); err != nil {
-            return err
-    }
-    return f.Close()
+func (plotter *Plotter) saveFile(c canvas, fileName string) (err error) {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	if _, err = c.WriteTo(f); err != nil {
+		return err
+	}
+	return f.Close()
 }
 
 type plot struct {
 	plotter *Plotter
 
-	optimizer OptimizerInterface
-	statisticsAggregator StatisticsAggregatorInterface
-	iterations int
+	optimizer      OptimizerInterface
+	statisticsData StatisticsDataInterface
 
-	plot *pplot.Plot
+	plot     *pplot.Plot
 	dataSets []*plotDataSet
 }
-func newPlot(plotter *Plotter, optimizer OptimizerInterface, statisticsAggregator StatisticsAggregatorInterface, iterations int) *plot {
+
+func newPlot(plotter *Plotter, optimizer OptimizerInterface, statisticsData StatisticsDataInterface) *plot {
 	p := new(plot)
 
 	p.plotter = plotter
 	p.optimizer = optimizer
-	p.statisticsAggregator = statisticsAggregator
-	p.iterations = iterations
+	p.statisticsData = statisticsData
 
 	p.dataSets = make([]*plotDataSet, 0, 1)
 
 	var err error
 	p.plot, err = pplot.New()
-    if err != nil {
-            panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 
-    p.plot.Title.Text = "Plot"
-    p.plot.X.Label.Text = "Generations"
-    p.plot.Y.Label.Text = "Cost"
+	p.plot.Title.Text = "Plot"
+	p.plot.X.Label.Text = "Generations"
+	p.plot.Y.Label.Text = "Cost"
 
 	return p
 }
@@ -207,24 +203,24 @@ func (p *plot) AddDataSet(name string, extracter DataExtracter) *plotDataSet {
 	return dataSet
 }
 func (p *plot) AddMinCostDataSet() *plotDataSet {
-	return p.AddDataSet("Min", func(sa StatisticsAggregatorInterface) plotter.XYs {
-		sda, ok := sa.(*StatisticsDefaultAggregator)
+	return p.AddDataSet("Min", func(sa StatisticsDataInterface) plotter.XYs {
+		sda, ok := sa.(StatisticsDataDefault)
 		if !ok {
 			panic("Expects StatisticsDefaultAggregator")
 		}
 
 		return CostsConverter(sda.MinCosts())
-	});
+	})
 }
 func (p *plot) AddMeanCostDataSet() *plotDataSet {
-	return p.AddDataSet("Mean", func(sa StatisticsAggregatorInterface) plotter.XYs {
-		sda, ok := sa.(*StatisticsDefaultAggregator)
+	return p.AddDataSet("Mean", func(sa StatisticsDataInterface) plotter.XYs {
+		sda, ok := sa.(StatisticsDataDefault)
 		if !ok {
 			panic("Expects StatisticsDefaultAggregator")
 		}
 
 		return CostsConverter(sda.MeanCosts())
-	});
+	})
 }
 func (p *plot) Done() *Plotter {
 	return p.plotter
@@ -233,16 +229,17 @@ func (p *plot) InnerPlot(title string) *pplot.Plot {
 	return p.plot
 }
 
-type DataExtracter func(StatisticsAggregatorInterface) plotter.XYs
+type DataExtracter func(StatisticsDataInterface) plotter.XYs
 type ValueConverter func(float64) float64
 type plotDataSet struct {
 	plot *plot
 
-	name string
-	extracter DataExtracter
+	name       string
+	extracter  DataExtracter
 	xConverter ValueConverter
 	yConverter ValueConverter
 }
+
 func newPlotDataSet(plot *plot, name string, extracter DataExtracter) *plotDataSet {
 	dataSet := new(plotDataSet)
 
@@ -260,8 +257,8 @@ func (dataSet *plotDataSet) YConverter(converter ValueConverter) *plotDataSet {
 	dataSet.yConverter = converter
 	return dataSet
 }
-func (dataSet *plotDataSet) values(statisticsAggregator StatisticsAggregatorInterface) plotter.XYs {
-	xys := dataSet.extracter(statisticsAggregator)
+func (dataSet *plotDataSet) values(statisticsData StatisticsDataInterface) plotter.XYs {
+	xys := dataSet.extracter(statisticsData)
 	if dataSet.xConverter != nil {
 		for i := 0; i < len(xys); i++ {
 			xys[i].X = dataSet.xConverter(xys[i].X)

@@ -17,33 +17,27 @@ func main() {
 
 	iterations := 1000
 
-	statisticsAggregator := createAggregator()
-	optimizer := createOptimizer(statisticsAggregator)
-
 	plotting.NewPlotter().
-		AddPlotWithComputations(optimizer, statisticsAggregator, iterations).
+		AddPlot(NewOptimizerAggregator().
+				Optimizer(createOptimizer()).
+				StatisticsOptions(NewStatisticsDefaultOptions().
+					TrackMinCosts().
+					TrackMeanCosts()).
+				Iterations(iterations)).
 			Title("Partition").
 			AddMinCostDataSet().YConverter(plotting.Log10).Done().
 			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
 			Done().
 		Draw(8, 4, "plot.png")
-
-	log.Warnf("Avg duration: %v", statisticsAggregator.Duration())
 }
 
-func createAggregator() *StatisticsDefaultAggregator {
-	return NewStatisticsDefaultAggregator(
-		NewStatisticsDefaultOptions().
-			TrackMinCosts().
-			TrackMeanCosts()).
-		(*StatisticsDefaultAggregator)
-}
-func createOptimizer(statisticsAggregator *StatisticsDefaultAggregator) OptimizerInterface {
+func createOptimizer() OptimizerInterface {
 	popSize := 32
 	chromSize := len(partition.List)
 	weedRate := 50.0
 	mutationProb := 0.05
 	generations := 200
+	maxGenerationsWithoutImprovements := 15
 
 	return NewIncrementalOptimizer().
 		Weeder(NewSimpleWeeder(weedRate)).
@@ -55,8 +49,7 @@ func createOptimizer(statisticsAggregator *StatisticsDefaultAggregator) Optimize
 		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).
 			Min_Cost(0).
-			Max_GenerationsWithoutImprovements(15)).
-		StatisticsOptions(statisticsAggregator.Options()).
+			Max_GenerationsWithoutImprovements(maxGenerationsWithoutImprovements)).
 		PopSize(popSize).
 		ChromSize(chromSize)
 }

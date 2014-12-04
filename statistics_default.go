@@ -6,6 +6,18 @@ import (
 	"time"
 )
 
+type StatisticsDataDefault interface {
+	Generations() int
+	Duration() time.Duration
+	MinCost() float64
+	MinCosts() []float64
+	MinCostsVar() float64
+	MeanCost() float64
+	MeanCosts() []float64
+	WorstCost() float64
+	WorstCosts() []float64
+}
+
 // Default realization of StatisticsInterface
 type StatisticsDefault struct {
 	started   bool
@@ -175,4 +187,8 @@ func (statistics *StatisticsDefault) WorstCost() float64 {
 // Len would be `Iterations() + 1` because of initial value
 func (statistics *StatisticsDefault) WorstCosts() []float64 {
 	return statistics.worstCosts
+}
+
+func (statistics *StatisticsDefault) Data() StatisticsDataInterface {
+	return statistics
 }

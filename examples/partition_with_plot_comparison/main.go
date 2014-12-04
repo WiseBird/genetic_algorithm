@@ -21,24 +21,31 @@ func main() {
 	pmutate2 := 0.2
 	iterations := 1000
 
-	statisticsAggregator1 := createAggregator()
-	optimizer1 := createOptimizer(statisticsAggregator1, pmutate1)
-
-	statisticsAggregator2 := createAggregator()
-	optimizer2 := createOptimizer(statisticsAggregator2, pmutate2)
-
-	plotting.NewPlotter().
-		AddPlotWithComputations(optimizer1, statisticsAggregator1, iterations).
+	sd := plotting.NewPlotter().
+		AddPlot(NewOptimizerAggregator().
+				Optimizer(createOptimizer(pmutate1)).
+				StatisticsOptions(NewStatisticsDefaultOptions().
+					TrackMinCosts().
+					TrackMeanCosts()).
+				Iterations(iterations)).
 			Title(fmt.Sprintf("Partition m=%.2f", pmutate1)).
 			AddMinCostDataSet().YConverter(plotting.Log10).Done().
 			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
 			Done().
-		AddPlotWithComputations(optimizer2, statisticsAggregator2, iterations).
+		AddPlot(NewOptimizerAggregator().
+				Optimizer(createOptimizer(pmutate2)).
+				StatisticsOptions(NewStatisticsDefaultOptions().
+					TrackMinCosts().
+					TrackMeanCosts()).
+				Iterations(iterations)).
 			Title(fmt.Sprintf("Partition m=%.2f", pmutate2)).
 			AddMinCostDataSet().YConverter(plotting.Log10).Done().
 			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
 			Done().
 		Draw(8, 4, "plot.png")
+
+	statisticsAggregator1 := sd[0].(StatisticsDataDefault)
+	statisticsAggregator2 := sd[1].(StatisticsDataDefault)
 
 	log.Warnf("Avg duration1: %v", statisticsAggregator1.Duration())
 	log.Warnf("Avg duration2: %v", statisticsAggregator2.Duration())
@@ -50,18 +57,12 @@ func main() {
 	log.Warnf("Avg minCost2: %v", statisticsAggregator2.MinCost())
 }
 
-func createAggregator() *StatisticsDefaultAggregator {
-	return NewStatisticsDefaultAggregator(
-		NewStatisticsDefaultOptions().
-			TrackMinCosts().
-			TrackMeanCosts()).
-		(*StatisticsDefaultAggregator)
-}
-func createOptimizer(statisticsAggregator *StatisticsDefaultAggregator, mutationProb float64) OptimizerInterface {
+func createOptimizer(mutationProb float64) OptimizerInterface {
 	popSize := 32
 	chromSize := len(partition.List)
 	weedRate := 50.0
 	generations := 200
+	maxGenerationsWithoutImprovements := 15
 
 	return NewIncrementalOptimizer().
 		Weeder(NewSimpleWeeder(weedRate)).
@@ -73,8 +74,7 @@ func createOptimizer(statisticsAggregator *StatisticsDefaultAggregator, mutation
 		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).
 			Min_Cost(0).
-			Max_GenerationsWithoutImprovements(15)).
-		StatisticsOptions(statisticsAggregator.Options()).
+			Max_GenerationsWithoutImprovements(maxGenerationsWithoutImprovements)).
 		PopSize(popSize).
 		ChromSize(chromSize)
 }

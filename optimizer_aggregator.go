@@ -50,7 +50,7 @@ func (aggregator *OptimizerAggregator) check() {
 	}
 }
 
-func (aggregator *OptimizerAggregator) Aggregate() (ChromosomeInterface, StatisticsAggregatorInterface) {
+func (aggregator *OptimizerAggregator) Optimize() (ChromosomeInterface, StatisticsDataInterface) {
 	aggregator.check()
 
 	statisticsAggregator := aggregator.statisticsAggregatorConstructor(aggregator.statisticsOptions)
@@ -66,9 +66,7 @@ func (aggregator *OptimizerAggregator) Aggregate() (ChromosomeInterface, Statist
 		statisticsAggregator.Aggregate(stats)
 	}
 
-	statisticsAggregator.Compute()
-
-	return bestChrom, statisticsAggregator
+	return bestChrom, statisticsAggregator.Compute()
 }
 func (aggregator *OptimizerAggregator) ensureOptimizerOptions(statisticsAggregator StatisticsAggregatorInterface) {
 	optimizerWithStatisticsOptionsSetup, ok := aggregator.optimizer.(OptimizerWithStatisticsOptionsSetup)

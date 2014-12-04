@@ -12,7 +12,7 @@ func init() {
 }
 
 type OptimizerInterface interface {
-	Optimize() (ChromosomeInterface, StatisticsInterface)
+	Optimize() (ChromosomeInterface, StatisticsDataInterface)
 }
 type OptimizerWithStatisticsOptionsSetup interface {
 	SetupStatisticsOptions() StatisticsOptionsInterface

@@ -38,7 +38,7 @@ func NewStatisticsDefaultAggregator(options StatisticsOptionsInterface) Statisti
 func (aggregator *StatisticsDefaultAggregator) Options() StatisticsOptionsInterface {
 	return aggregator.options.Copy()
 }
-func (aggregator *StatisticsDefaultAggregator) Aggregate(statistics StatisticsInterface) {
+func (aggregator *StatisticsDefaultAggregator) Aggregate(statistics StatisticsDataInterface) {
 	stats, ok := statistics.(*StatisticsDefault)
 	if !ok {
 		panic("Expects instance of StatisticsDefault")
@@ -46,7 +46,7 @@ func (aggregator *StatisticsDefaultAggregator) Aggregate(statistics StatisticsIn
 
 	aggregator.statistics = append(aggregator.statistics, stats)
 }
-func (aggregator *StatisticsDefaultAggregator) Compute() {
+func (aggregator *StatisticsDefaultAggregator) Compute() StatisticsDataInterface {
 	count := len(aggregator.statistics)
 
 	aggregator.duration = time.Duration(
@@ -101,6 +101,8 @@ func (aggregator *StatisticsDefaultAggregator) Compute() {
 				return aggregator.statistics[i].worstCosts
 			})
 	}
+
+	return aggregator
 }
 
 func (aggregator *StatisticsDefaultAggregator) Generations() int {
@@ -129,4 +131,8 @@ func (aggregator *StatisticsDefaultAggregator) WorstCost() float64 {
 }
 func (aggregator *StatisticsDefaultAggregator) WorstCosts() []float64 {
 	return aggregator.worstCosts
+}
+
+func (aggregator *StatisticsDefaultAggregator) Data() StatisticsDataInterface {
+	return aggregator
 }

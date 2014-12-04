@@ -116,7 +116,7 @@ func (optimizer *OptimizerBase) check() {
 	optimizer.OptimizerBaseVirtualMInterface.check()
 }
 
-func (optimizer *OptimizerBase) Optimize() (ChromosomeInterface, StatisticsInterface) {
+func (optimizer *OptimizerBase) Optimize() (ChromosomeInterface, StatisticsDataInterface) {
 	optimizer.check()
 	optimizer.stopCriterion.Setup(optimizer.statisticsOptions)
 
@@ -146,7 +146,7 @@ func (optimizer *OptimizerBase) Optimize() (ChromosomeInterface, StatisticsInter
 
 	statistics.End()
 
-	return optimizer.population[0], statistics
+	return optimizer.population[0], statistics.Data()
 }
 func (optimizer *OptimizerBase) sort() {
 	optimizer.population.SetCost(optimizer.costFunction)
