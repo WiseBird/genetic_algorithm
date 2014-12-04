@@ -22,30 +22,32 @@ func main() {
 	iterations := 1000
 
 	sd := plotting.NewPlotter().
-		AddPlot(NewOptimizerAggregator().
-				Optimizer(createOptimizer(pmutate1)).
-				StatisticsOptions(NewStatisticsDefaultOptions().
-					TrackMinCosts().
-					TrackMeanCosts()).
-				Iterations(iterations)).
-			Title(fmt.Sprintf("Partition m=%.2f", pmutate1)).
-			AddMinCostDataSet().YConverter(plotting.Log10).Done().
-			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
+		AddPlot(fmt.Sprintf("Partition m=%.2f", pmutate1)).
+			AddDataProvider(NewOptimizerAggregator().
+					Optimizer(createOptimizer(pmutate1)).
+					StatisticsOptions(NewStatisticsDefaultOptions().
+						TrackMinCosts().
+						TrackMeanCosts()).
+					Iterations(iterations)).
+				AddMinCostDataSet().YConverter(plotting.Log10).Done().
+				AddMeanCostDataSet().YConverter(plotting.Log10).Done().
+				Done().
 			Done().
-		AddPlot(NewOptimizerAggregator().
-				Optimizer(createOptimizer(pmutate2)).
-				StatisticsOptions(NewStatisticsDefaultOptions().
-					TrackMinCosts().
-					TrackMeanCosts()).
-				Iterations(iterations)).
-			Title(fmt.Sprintf("Partition m=%.2f", pmutate2)).
-			AddMinCostDataSet().YConverter(plotting.Log10).Done().
-			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
+		AddPlot(fmt.Sprintf("Partition m=%.2f", pmutate2)).
+			AddDataProvider(NewOptimizerAggregator().
+					Optimizer(createOptimizer(pmutate2)).
+					StatisticsOptions(NewStatisticsDefaultOptions().
+						TrackMinCosts().
+						TrackMeanCosts()).
+					Iterations(iterations)).
+				AddMinCostDataSet().YConverter(plotting.Log10).Done().
+				AddMeanCostDataSet().YConverter(plotting.Log10).Done().
+				Done().
 			Done().
 		Draw(8, 4, "plot.png")
 
-	statisticsAggregator1 := sd[0].(StatisticsDataDefault)
-	statisticsAggregator2 := sd[1].(StatisticsDataDefault)
+	statisticsAggregator1 := sd[0][0].(StatisticsDataDefault)
+	statisticsAggregator2 := sd[1][0].(StatisticsDataDefault)
 
 	log.Warnf("Avg duration1: %v", statisticsAggregator1.Duration())
 	log.Warnf("Avg duration2: %v", statisticsAggregator2.Duration())

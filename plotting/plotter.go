@@ -57,33 +57,27 @@ func NewPlotter() *Plotter {
 
 	return plotter
 }
-func (plotter *Plotter) AddPlotWithData(data StatisticsDataInterface) *plot {
-	plot := newPlot(plotter, nil, data)
+func (plotter *Plotter) AddPlot(title string) *plot {
+	plot := newPlot(plotter, title)
 	plotter.plots = append(plotter.plots, plot)
 
 	return plot
 }
-func (plotter *Plotter) AddPlot(optimizer OptimizerInterface) *plot {
-	plot := newPlot(plotter, optimizer, nil)
-	plotter.plots = append(plotter.plots, plot)
-
-	return plot
-}
-func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) []StatisticsDataInterface {
+func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) [][]StatisticsDataInterface {
 	for _, p := range plotter.plots {
-		if p.optimizer != nil {
-			_, p.statisticsData = p.optimizer.Optimize()
+		plotData := make([]interface{}, 0, len(p.providers)*2)
+
+		for _, provider := range p.providers {
+			statisticsData := provider.Data()
+			for _, dataSet := range provider.dataSets {
+				plotData = append(plotData, dataSet.name)
+				plotData = append(plotData, dataSet.values(statisticsData))
+			}
 		}
 
-		for _, dataSet := range p.dataSets {
-			err := plotutil.AddLinePoints(
-				p.plot,
-				dataSet.name,
-				dataSet.values(p.statisticsData))
-
-			if err != nil {
-				panic(err)
-			}
+		err := plotutil.AddLinePoints(p.plot, plotData...)
+		if err != nil {
+			panic(err)
 		}
 	}
 
@@ -97,9 +91,12 @@ func (plotter *Plotter) Draw(widthInch, heightInch float64, fileName string) []S
 		panic(err)
 	}
 
-	data := make([]StatisticsDataInterface, len(plotter.plots))
+	data := make([][]StatisticsDataInterface, len(plotter.plots))
 	for i, p := range plotter.plots {
-		data[i] = p.statisticsData
+		data[i] = make([]StatisticsDataInterface, len(p.providers))
+		for j, provider := range p.providers {
+			data[i][j] = provider.Data()
+		}
 	}
 	return data
 }
@@ -156,21 +153,15 @@ func (plotter *Plotter) saveFile(c canvas, fileName string) (err error) {
 type plot struct {
 	plotter *Plotter
 
-	optimizer      OptimizerInterface
-	statisticsData StatisticsDataInterface
-
-	plot     *pplot.Plot
-	dataSets []*plotDataSet
+	plot      *pplot.Plot
+	providers []*plotDataProvider
 }
 
-func newPlot(plotter *Plotter, optimizer OptimizerInterface, statisticsData StatisticsDataInterface) *plot {
+func newPlot(plotter *Plotter, title string) *plot {
 	p := new(plot)
 
 	p.plotter = plotter
-	p.optimizer = optimizer
-	p.statisticsData = statisticsData
-
-	p.dataSets = make([]*plotDataSet, 0, 1)
+	p.providers = make([]*plotDataProvider, 0, 1)
 
 	var err error
 	p.plot, err = pplot.New()
@@ -196,13 +187,50 @@ func (p *plot) YLabel(label string) *plot {
 	p.plot.Y.Label.Text = label
 	return p
 }
-func (p *plot) AddDataSet(name string, extracter DataExtracter) *plotDataSet {
+func (p *plot) AddDataProvider(optimizer OptimizerInterface) *plotDataProvider {
+	plotDataProvider := newPlotDataProvider(p, optimizer, nil)
+	p.providers = append(p.providers, plotDataProvider)
+
+	return plotDataProvider
+}
+func (p *plot) AddData(data StatisticsDataInterface) *plotDataProvider {
+	plotDataProvider := newPlotDataProvider(p, nil, data)
+	p.providers = append(p.providers, plotDataProvider)
+
+	return plotDataProvider
+}
+func (p *plot) Done() *Plotter {
+	return p.plotter
+}
+func (p *plot) InnerPlot(title string) *pplot.Plot {
+	return p.plot
+}
+
+type plotDataProvider struct {
+	plot *plot
+
+	optimizer      OptimizerInterface
+	statisticsData StatisticsDataInterface
+
+	dataSets []*plotDataSet
+}
+
+func newPlotDataProvider(plot *plot, optimizer OptimizerInterface, statisticsData StatisticsDataInterface) *plotDataProvider {
+	provider := new(plotDataProvider)
+
+	provider.plot = plot
+	provider.optimizer = optimizer
+	provider.statisticsData = statisticsData
+
+	return provider
+}
+func (p *plotDataProvider) AddDataSet(name string, extracter DataExtracter) *plotDataSet {
 	dataSet := newPlotDataSet(p, name, extracter)
 	p.dataSets = append(p.dataSets, dataSet)
 
 	return dataSet
 }
-func (p *plot) AddMinCostDataSet() *plotDataSet {
+func (p *plotDataProvider) AddMinCostDataSet() *plotDataSet {
 	return p.AddDataSet("Min", func(sa StatisticsDataInterface) plotter.XYs {
 		sda, ok := sa.(StatisticsDataDefault)
 		if !ok {
@@ -212,7 +240,7 @@ func (p *plot) AddMinCostDataSet() *plotDataSet {
 		return CostsConverter(sda.MinCosts())
 	})
 }
-func (p *plot) AddMeanCostDataSet() *plotDataSet {
+func (p *plotDataProvider) AddMeanCostDataSet() *plotDataSet {
 	return p.AddDataSet("Mean", func(sa StatisticsDataInterface) plotter.XYs {
 		sda, ok := sa.(StatisticsDataDefault)
 		if !ok {
@@ -222,17 +250,20 @@ func (p *plot) AddMeanCostDataSet() *plotDataSet {
 		return CostsConverter(sda.MeanCosts())
 	})
 }
-func (p *plot) Done() *Plotter {
-	return p.plotter
+func (p *plotDataProvider) Data() StatisticsDataInterface {
+	if p.statisticsData == nil {
+		_, p.statisticsData = p.optimizer.Optimize()
+	}
+	return p.statisticsData
 }
-func (p *plot) InnerPlot(title string) *pplot.Plot {
+func (p *plotDataProvider) Done() *plot {
 	return p.plot
 }
 
 type DataExtracter func(StatisticsDataInterface) plotter.XYs
 type ValueConverter func(float64) float64
 type plotDataSet struct {
-	plot *plot
+	provider *plotDataProvider
 
 	name       string
 	extracter  DataExtracter
@@ -240,13 +271,17 @@ type plotDataSet struct {
 	yConverter ValueConverter
 }
 
-func newPlotDataSet(plot *plot, name string, extracter DataExtracter) *plotDataSet {
+func newPlotDataSet(provider *plotDataProvider, name string, extracter DataExtracter) *plotDataSet {
 	dataSet := new(plotDataSet)
 
-	dataSet.plot = plot
+	dataSet.provider = provider
 	dataSet.name = name
 	dataSet.extracter = extracter
 
+	return dataSet
+}
+func (dataSet *plotDataSet) Name(name string) *plotDataSet {
+	dataSet.name = name
 	return dataSet
 }
 func (dataSet *plotDataSet) XConverter(converter ValueConverter) *plotDataSet {
@@ -271,6 +306,6 @@ func (dataSet *plotDataSet) values(statisticsData StatisticsDataInterface) plott
 	}
 	return xys
 }
-func (dataSet *plotDataSet) Done() *plot {
-	return dataSet.plot
+func (dataSet *plotDataSet) Done() *plotDataProvider {
+	return dataSet.provider
 }

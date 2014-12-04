@@ -18,15 +18,16 @@ func main() {
 	iterations := 1000
 
 	plotting.NewPlotter().
-		AddPlot(NewOptimizerAggregator().
-				Optimizer(createOptimizer()).
-				StatisticsOptions(NewStatisticsDefaultOptions().
-					TrackMinCosts().
-					TrackMeanCosts()).
-				Iterations(iterations)).
-			Title("Partition").
-			AddMinCostDataSet().YConverter(plotting.Log10).Done().
-			AddMeanCostDataSet().YConverter(plotting.Log10).Done().
+		AddPlot("Partition").
+			AddDataProvider(NewOptimizerAggregator().
+					Optimizer(createOptimizer()).
+					StatisticsOptions(NewStatisticsDefaultOptions().
+						TrackMinCosts().
+						TrackMeanCosts()).
+					Iterations(iterations)).
+				AddMinCostDataSet().YConverter(plotting.Log10).Done().
+				AddMeanCostDataSet().YConverter(plotting.Log10).Done().
+				Done().
 			Done().
 		Draw(8, 4, "plot.png")
 }

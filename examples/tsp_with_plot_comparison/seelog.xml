@@ -1,0 +1,6 @@
+<seelog type="sync" minlevel="warn">
+	<outputs>
+		<!--<file path="log.log"/>-->
+		<console />
+	</outputs>
+</seelog>

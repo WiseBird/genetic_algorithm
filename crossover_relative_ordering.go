@@ -49,7 +49,7 @@ func (crossover *RelativeOrderingCrossover) Crossover(parents Chromosomes) Chrom
 		panic("Crossover do not support different chromosome size")
 	}
 
-	if crossover.preservedGenes <= genesLen {
+	if genesLen <= crossover.preservedGenes {
 		log.Warnf("ROX will produce copies of parent because chromosome len lesser than preservedGenes")
 	}
 

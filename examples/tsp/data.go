@@ -2,7 +2,7 @@ package main
 
 var (
 	// http://www.math.uwaterloo.ca/tsp/world/dj38.tsp
-	cities = []City{
+	Cities = []City{
 		City{11003.611100, 42102.500000},
 		City{11108.611100, 42373.888900},
 		City{11133.333300, 42885.833300},

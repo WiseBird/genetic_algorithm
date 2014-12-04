@@ -17,7 +17,7 @@ type City struct {
 }
 
 func Cost(c ChromosomeInterface) float64 {
-	return CalcPath(cities, c)
+	return CalcPath(Cities, c)
 }
 
 func CalcPath(cities []City, c ChromosomeInterface) float64 {
@@ -54,7 +54,7 @@ func main() {
 
 func createOptimizer() OptimizerInterface {
 	popSize := 32
-	chromSize := len(cities)
+	chromSize := len(Cities)
 	weedRate := 50.0
 	mutationProb := 0.05
 	generations := 200
