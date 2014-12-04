@@ -88,20 +88,7 @@ func (crossover *MultiPointCrossover) chooseCrossPoints(genesLen int) []int {
 		p1, p2 := chooseTwoPointCrossSection(genesLen, crossover.canProduceCopiesOfParents)
 		return []int{p1, p2}
 	}
-
-	crossPointsMap := make(map[int]bool, crossover.crossPointsCount)
-	crossPointsList := make([]int, 0, crossover.crossPointsCount)
-	for i := 0; i < crossover.crossPointsCount; i++ {
-		for {
-			crossPoint := rand.Intn(genesLen + 1)
-			if !crossPointsMap[crossPoint] {
-				crossPointsMap[crossPoint] = true
-				crossPointsList = append(crossPointsList, crossPoint)
-				break
-			}
-		}
-	}
-	return crossPointsList
+	return chooseDifferentRandomNumbers(crossover.crossPointsCount, genesLen+1)
 }
 func (crossover *MultiPointCrossover) crossover(p1, p2 ChromosomeInterface, crossPoints []int) (c1, c2 ChromosomeInterface) {
 	p1genes := p1.Genes()

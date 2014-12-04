@@ -5,7 +5,7 @@ import (
 )
 
 // Crossover for ordered chromosomes.
-// Tends to preserve relative order.
+// Tends to preserve absolute order.
 //
 // Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley , Nam-wook Yoo (1995)
 // http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3585

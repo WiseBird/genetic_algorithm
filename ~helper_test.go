@@ -3,6 +3,7 @@ package genetic_algorithm
 import (
 	. "gopkg.in/check.v1"
 	"math"
+	"sort"
 )
 
 type HelperSuite struct{}
@@ -57,6 +58,13 @@ func (s *HelperSuite) Test_chooseTwoPointCrossSection_secondCrossPoint_cantCopie
 			c.Fatalf("Choose inappropriate points: %d:%d", p2, p2)
 		}
 	}
+}
+
+func (s *HelperSuite) Test_chooseDifferentRandomNumbers(c *C) {
+	numbers := chooseDifferentRandomNumbers(3, 3)
+	sort.Sort(sort.IntSlice(numbers))
+
+	c.Assert(numbers, DeepEquals, []int{0, 1, 2})
 }
 
 //Within Delta Custom Checker

@@ -1,6 +1,7 @@
 package genetic_algorithm
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 )
@@ -131,4 +132,25 @@ func chooseTwoPointCrossSection(genesLen int, canProduceCopiesOfParents bool) (c
 		crossPoint2 = rand.Intn(genesLen-crossPoint1) + 1 + crossPoint1
 	}
 	return
+}
+
+func chooseDifferentRandomNumbers(count, upperBound int) []int {
+	if upperBound < count {
+		panic(fmt.Sprintf("Can't select %d different numbers on inerval [0:%d)", count, upperBound))
+	}
+
+	numbersMap := make(map[int]bool, count)
+	numbersList := make([]int, count)
+	for i := 0; i < count; i++ {
+		for {
+			number := rand.Intn(upperBound)
+			if !numbersMap[number] {
+				numbersMap[number] = true
+				numbersList[i] = number
+				break
+			}
+		}
+	}
+
+	return numbersList
 }

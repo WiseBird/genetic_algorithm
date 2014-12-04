@@ -22,14 +22,14 @@ import (
 //
 // child1:        e B a D c
 //
-// Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley , Nam-wook Yoo (1995)
+// Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley, Nam-wook Yoo (1995)
 // http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3585
-type PositionCrossover struct {
+type PositionBasedCrossover struct {
 	canProduceCopiesOfParents bool
 }
 
-func NewPositionCrossover() *PositionCrossover {
-	crossover := new(PositionCrossover)
+func NewPositionBasedCrossover() *PositionBasedCrossover {
+	crossover := new(PositionBasedCrossover)
 
 	return crossover
 }
@@ -38,19 +38,19 @@ func NewPositionCrossover() *PositionCrossover {
 //
 // Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley , Nam-wook Yoo (1995)
 // http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3585
-func NewUniformOrderingCrossover() *PositionCrossover {
-	return NewPositionCrossover()
+func NewUniformOrderingCrossover() *PositionBasedCrossover {
+	return NewPositionBasedCrossover()
 }
 
-func (crossover *PositionCrossover) ParentsCount() int {
+func (crossover *PositionBasedCrossover) ParentsCount() int {
 	return 2
 }
-func (crossover *PositionCrossover) CanProduceCopiesOfParents(val bool) *PositionCrossover {
+func (crossover *PositionBasedCrossover) CanProduceCopiesOfParents(val bool) *PositionBasedCrossover {
 	crossover.canProduceCopiesOfParents = val
 	return crossover
 }
 
-func (crossover *PositionCrossover) Crossover(parents Chromosomes) Chromosomes {
+func (crossover *PositionBasedCrossover) Crossover(parents Chromosomes) Chromosomes {
 	if len(parents) != crossover.ParentsCount() {
 		panic("Incorrect parents count")
 	}
@@ -87,7 +87,7 @@ func (crossover *PositionCrossover) Crossover(parents Chromosomes) Chromosomes {
 
 	return Chromosomes{c1, c2}
 }
-func (crossover *PositionCrossover) crossover(p1, p2 *OrderedChromosome, mask []int) (c1, c2 ChromosomeInterface) {
+func (crossover *PositionBasedCrossover) crossover(p1, p2 *OrderedChromosome, mask []int) (c1, c2 ChromosomeInterface) {
 	p1genes := p1.OrderedGenes()
 	p2genes := p2.OrderedGenes()
 
@@ -104,7 +104,7 @@ func (crossover *PositionCrossover) crossover(p1, p2 *OrderedChromosome, mask []
 
 	return
 }
-func (crossover *PositionCrossover) fillChild(c, p1, p2 OrderedGenes, mask []int) {
+func (crossover *PositionBasedCrossover) fillChild(c, p1, p2 OrderedGenes, mask []int) {
 	alreadyInChild := make(map[int]bool, len(mask))
 
 	for i := 0; i < len(mask); i++ {
