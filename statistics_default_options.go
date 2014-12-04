@@ -44,6 +44,34 @@ func (options *StatisticsDefaultOptions) TrackMinCostsVar() *StatisticsDefaultOp
 	return options
 }
 
+func (options *StatisticsDefaultOptions) Ensure(other StatisticsOptionsInterface) {
+	opt, ok := other.(*StatisticsDefaultOptions)
+	if !ok {
+		panic("Expect *StatisticsDefaultOptions")
+	}
+
+	if options.trackMinCosts {
+		opt.TrackMinCosts()
+	}
+	if options.trackGensWoImprv {
+		opt.TrackGenerationsWithoutImprovements()
+	}
+	if options.trackMeanCost {
+		opt.TrackMeanCost()
+	}
+	if options.trackMeanCosts {
+		opt.TrackMeanCosts()
+	}
+	if options.trackWorstCost {
+		opt.TrackWorstCost()
+	}
+	if options.trackWorstCosts {
+		opt.TrackWorstCosts()
+	}
+	if options.trackMinCostsVar {
+		opt.TrackMinCostsVar()
+	}
+}
 func (options *StatisticsDefaultOptions) Copy() *StatisticsDefaultOptions {
 	return &StatisticsDefaultOptions{
 		options.trackMinCosts,

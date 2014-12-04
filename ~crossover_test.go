@@ -31,16 +31,16 @@ func (s *CrossoverSuite) TestMultiPointCrossover_chooseCrossPoints(c *C) {
 	c.Assert(ps, DeepEquals, []int{0, 1, 2})
 }
 func (s *CrossoverSuite) TestMultiPointCrossover_threePoint(c *C) {
-	parent1Genes := BinaryGenes { true, true }
-	parent2Genes := BinaryGenes { false, false }
+	parent1Genes := BinaryGenes{true, true}
+	parent2Genes := BinaryGenes{false, false}
 
-	expectedPart1Genes := BinaryGenes { true, false }
-	expectedPart2Genes := BinaryGenes { false, true }
+	expectedPart1Genes := BinaryGenes{true, false}
+	expectedPart2Genes := BinaryGenes{false, true}
 
 	parent1 := NewBinaryChromosome(parent1Genes)
 	parent2 := NewBinaryChromosome(parent2Genes)
 
-	children := NewMultiPointCrossover(NewEmptyBinaryChromosome, 3).Crossover([]ChromosomeInterface {parent1, parent2})
+	children := NewMultiPointCrossover(NewEmptyBinaryChromosome, 3).Crossover([]ChromosomeInterface{parent1, parent2})
 
 	compareTwoBinaryGenesWithoutOrder(c, children[0], children[1], expectedPart1Genes, expectedPart2Genes)
 }

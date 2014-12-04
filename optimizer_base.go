@@ -155,3 +155,7 @@ func (optimizer *OptimizerBase) sort() {
 	log.Infof("Best: %v", optimizer.population[0])
 	log.Debugf("Population:\n%v\n", optimizer.population)
 }
+
+func (optimizer *OptimizerBase) SetupStatisticsOptions() StatisticsOptionsInterface {
+	return optimizer.statisticsOptions
+}

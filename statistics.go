@@ -1,8 +1,9 @@
 package genetic_algorithm
 
 type StatisticsConstructor func(StatisticsOptionsInterface) StatisticsInterface
+type StatisticsAggregatorConstructor func(StatisticsOptionsInterface) StatisticsAggregatorInterface
 
-// Accumulate statistics during optimization.
+// Accumulate statistics during optimization
 type StatisticsInterface interface {
 	// Optimizer will call this method before optimization
 	Start()
@@ -15,9 +16,15 @@ type StatisticsInterface interface {
 
 // Options for statistics
 // Defines what info gather and what not
-type StatisticsOptionsInterface interface{}
+type StatisticsOptionsInterface interface {
+	// Ensures that other tracks what ensurer tracks
+	Ensure(other StatisticsOptionsInterface)
+}
 
 type StatisticsAggregatorInterface interface {
 	Aggregate(StatisticsInterface)
 	Compute()
+}
+type StatisticsAggregatorWithOptions interface {
+	Options() StatisticsOptionsInterface
 }

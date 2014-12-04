@@ -51,9 +51,11 @@ func main() {
 }
 
 func createAggregator() *StatisticsDefaultAggregator {
-	return NewStatisticsDefaultAggregator(NewStatisticsDefaultOptions().
-		TrackMinCosts().
-		TrackMeanCosts())
+	return NewStatisticsDefaultAggregator(
+		NewStatisticsDefaultOptions().
+			TrackMinCosts().
+			TrackMeanCosts()).
+		(*StatisticsDefaultAggregator)
 }
 func createOptimizer(statisticsAggregator *StatisticsDefaultAggregator, mutationProb float64) OptimizerInterface {
 	popSize := 32

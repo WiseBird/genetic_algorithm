@@ -23,14 +23,19 @@ type StatisticsDefaultAggregator struct {
 	worstCosts []float64
 }
 
-func NewStatisticsDefaultAggregator(options *StatisticsDefaultOptions) *StatisticsDefaultAggregator {
+func NewStatisticsDefaultAggregator(options StatisticsOptionsInterface) StatisticsAggregatorInterface {
+	opts, ok := options.(*StatisticsDefaultOptions)
+	if !ok {
+		panic("Expects instance of StatisticsOptionsInterface")
+	}
+
 	aggregator := new(StatisticsDefaultAggregator)
 
-	aggregator.options = options
+	aggregator.options = opts
 
 	return aggregator
 }
-func (aggregator *StatisticsDefaultAggregator) Options() *StatisticsDefaultOptions {
+func (aggregator *StatisticsDefaultAggregator) Options() StatisticsOptionsInterface {
 	return aggregator.options.Copy()
 }
 func (aggregator *StatisticsDefaultAggregator) Aggregate(statistics StatisticsInterface) {

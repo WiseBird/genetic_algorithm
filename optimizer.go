@@ -14,3 +14,6 @@ func init() {
 type OptimizerInterface interface {
 	Optimize() (ChromosomeInterface, StatisticsInterface)
 }
+type OptimizerWithStatisticsOptionsSetup interface {
+	SetupStatisticsOptions() StatisticsOptionsInterface
+}
