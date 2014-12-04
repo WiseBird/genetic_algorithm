@@ -34,7 +34,7 @@ func (selector *RouletteWheelRankWeightingSelector) recalcWeights(n int) {
 
 	sum := float64(n * (n + 1) / 2)
 	for i := 1; i <= n; i++ {
-		selector.weights[i-1] = float64(n + 1 - i) / sum
+		selector.weights[i-1] = float64(n+1-i) / sum
 	}
 
 	log.Tracef("Recalced weights %v\n", selector.weights)

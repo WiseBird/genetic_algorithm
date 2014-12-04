@@ -1,11 +1,12 @@
 package genetic_algorithm
 
-import ( 
-	. "gopkg.in/check.v1"
+import (
 	"code.google.com/p/gomock/gomock"
+	. "gopkg.in/check.v1"
 )
 
 type SelectorSuite struct{}
+
 var _ = Suite(&SelectorSuite{})
 
 func (s *SelectorSuite) Test_SelectorBase_SelectMany_Should_Panic_OnNegativeCount(c *C) {
@@ -67,4 +68,3 @@ func (s *SelectorSuite) Test_SelectorWheelRank_Weighting(c *C) {
 	selector.Prepare(make(Chromosomes, 4))
 	c.Assert(selector.weights, DeepEquals, []float64{0.4, 0.3, 0.2, 0.1})
 }
-

@@ -1,9 +1,9 @@
 package genetic_algorithm
 
 import (
+	log "github.com/cihub/seelog"
 	"math"
 	"math/rand"
-	log "github.com/cihub/seelog"
 )
 
 const (
@@ -18,9 +18,10 @@ type MutatorBase struct {
 	MutatorBaseVirtualMInterface
 
 	probability float64
-	elitism int
-	kind int
+	elitism     int
+	kind        int
 }
+
 // MutatorBase's virtual methods
 type MutatorBaseVirtualMInterface interface {
 	MutateCromosome(chrom ChromosomeInterface, ind int)
@@ -36,16 +37,19 @@ func NewMutator(virtual MutatorBaseVirtualMInterface, probability float64) *Muta
 
 	return mutator
 }
+
 // Will roll for every element in chromosome, mutate it if success
 func (mutator *MutatorBase) OneByOne() *MutatorBase {
 	mutator.kind = MutatorOneByOneType
 	return mutator
 }
+
 // Will mutete exactly (Npop * Nel * P) elements
 func (mutator *MutatorBase) ExactCount() *MutatorBase {
 	mutator.kind = MutatorExactCountType
 	return mutator
 }
+
 // The best chromosome[s] can't be mutated
 func (mutator *MutatorBase) WithElitism(count int) *MutatorBase {
 	if count < 0 {
@@ -55,6 +59,7 @@ func (mutator *MutatorBase) WithElitism(count int) *MutatorBase {
 	mutator.elitism = count
 	return mutator
 }
+
 // All chromosomes can be mutated
 func (mutator *MutatorBase) WithoutElitism() *MutatorBase {
 	mutator.elitism = 0
@@ -63,10 +68,10 @@ func (mutator *MutatorBase) WithoutElitism() *MutatorBase {
 
 func (mutator *MutatorBase) Mutate(population Chromosomes) {
 	switch mutator.kind {
-		case MutatorOneByOneType:
-			mutator.mutateOneByOne(population)
-		case MutatorExactCountType:
-			mutator.mutateExactCount(population)
+	case MutatorOneByOneType:
+		mutator.mutateOneByOne(population)
+	case MutatorExactCountType:
+		mutator.mutateExactCount(population)
 	}
 }
 func (mutator *MutatorBase) mutateOneByOne(population Chromosomes) {
@@ -98,11 +103,11 @@ func (mutator *MutatorBase) mutateExactCount(population Chromosomes) {
 	genesLen := population[0].Genes().Len()
 
 	chromsToMutate := popLen - mutator.elitism
-	elementsToMutate := int(math.Floor(mutator.probability * float64(chromsToMutate * genesLen)))
+	elementsToMutate := int(math.Floor(mutator.probability * float64(chromsToMutate*genesLen)))
 	log.Debugf("ElemsToMutate: %d", elementsToMutate)
 
 	for i := 0; i < elementsToMutate; i++ {
-		chromInd := rand.Intn(popLen - mutator.elitism) + mutator.elitism;
+		chromInd := rand.Intn(popLen-mutator.elitism) + mutator.elitism
 		elemInd := rand.Intn(genesLen)
 
 		log.Tracef("Mutate: %v, at %d\n", population[chromInd], elemInd)

@@ -1,11 +1,12 @@
 package genetic_algorithm
 
 import (
-	"fmt"
 	"bytes"
+	"fmt"
 )
 
 type BinaryGenes []bool
+
 func (g BinaryGenes) Len() int { return len(g) }
 func (g BinaryGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
 	bgenes, ok := genes.(BinaryGenes)
@@ -20,6 +21,7 @@ type BinaryChromosome struct {
 	*ChromosomeBase
 	genes BinaryGenes
 }
+
 func NewBinaryChromosome(genes BinaryGenes) *BinaryChromosome {
 	chrom := new(BinaryChromosome)
 

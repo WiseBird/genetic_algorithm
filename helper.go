@@ -49,7 +49,7 @@ func meanFloat64Arr(values [][]float64) []float64 {
 			if len(arr) > i {
 				sum[i] += arr[i]
 			} else {
-				sum[i] += arr[len(arr) - 1]
+				sum[i] += arr[len(arr)-1]
 			}
 		}
 	}
@@ -60,6 +60,7 @@ func meanFloat64Arr(values [][]float64) []float64 {
 
 	return sum
 }
+
 // Expects at least one value in each array
 func meanFloat64ArrIter(count int, value func(int) []float64) []float64 {
 	values := make([][]float64, count)
@@ -102,7 +103,7 @@ func ssFloat64(values []float64) float64 {
 	var dsum float64
 	for _, val := range values {
 		dsum += val - mean
-		sum += math.Pow(val - mean, 2)
+		sum += math.Pow(val-mean, 2)
 	}
 
 	// Rounding error compensation. Ideally dsum equals zero.
@@ -110,10 +111,12 @@ func ssFloat64(values []float64) float64 {
 
 	return sum
 }
+
 // Sample variance
 func varianceFloat64(values []float64) float64 {
 	return ssFloat64(values) / (float64(len(values)) - 1)
 }
+
 // Population variance
 func pvarianceFloat64(values []float64) float64 {
 	return ssFloat64(values) / float64(len(values))
@@ -123,9 +126,9 @@ func chooseTwoPointCrossSection(genesLen int, canProduceCopiesOfParents bool) (c
 	crossPoint1 = rand.Intn(genesLen)
 
 	if !canProduceCopiesOfParents && crossPoint1 == 0 {
-		crossPoint2 = rand.Intn(genesLen - 1) + 1
+		crossPoint2 = rand.Intn(genesLen-1) + 1
 	} else {
-		crossPoint2 = rand.Intn(genesLen - crossPoint1) + 1 + crossPoint1
+		crossPoint2 = rand.Intn(genesLen-crossPoint1) + 1 + crossPoint1
 	}
 	return
 }

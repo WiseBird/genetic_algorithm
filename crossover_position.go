@@ -1,9 +1,10 @@
 package genetic_algorithm
 
 import (
-	"math/rand"
 	log "github.com/cihub/seelog"
+	"math/rand"
 )
+
 // Crossover for ordered chromosomes.
 // Generalization of OrderCrossoverVer2.
 // Tends to preserve relative order.
@@ -26,11 +27,13 @@ import (
 type PositionCrossover struct {
 	canProduceCopiesOfParents bool
 }
+
 func NewPositionCrossover() *PositionCrossover {
 	crossover := new(PositionCrossover)
 
 	return crossover
 }
+
 // Despite the fact that UOX behaves differently from Position crossover they are identical in expectation.
 //
 // Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley , Nam-wook Yoo (1995)
@@ -71,7 +74,7 @@ func (crossover *PositionCrossover) Crossover(parents Chromosomes) Chromosomes {
 		panic("Crossover can only produce copies of parents if genesLen < 2")
 	}
 
-	mask := make([]int, genesLen / 2)
+	mask := make([]int, genesLen/2)
 	for i := 0; i < genesLen; i++ {
 		if rand.Intn(2) == 0 {
 			mask = append(mask, i)
@@ -118,7 +121,7 @@ func (crossover *PositionCrossover) fillChild(c, p1, p2 OrderedGenes, mask []int
 		}
 
 		val := 0
-		for ;; {
+		for {
 			val = p2[p2Ind]
 			p2Ind++
 

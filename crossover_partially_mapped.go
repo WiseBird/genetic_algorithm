@@ -3,6 +3,7 @@ package genetic_algorithm
 import (
 	log "github.com/cihub/seelog"
 )
+
 // Crossover for ordered chromosomes.
 // Tends to preserve relative order.
 //
@@ -11,6 +12,7 @@ import (
 type PartiallyMappedCrossover struct {
 	canProduceCopiesOfParents bool
 }
+
 func NewPartiallyMappedCrossover() *PartiallyMappedCrossover {
 	crossover := new(PartiallyMappedCrossover)
 
@@ -78,7 +80,7 @@ func (crossover *PartiallyMappedCrossover) crossover(p1, p2 *OrderedChromosome, 
 	return
 }
 func (crossover *PartiallyMappedCrossover) fillChild(c, p1, p2 OrderedGenes, crossPoint1, crossPoint2 int) {
-	alreadyInChild := make(map[int]bool, crossPoint2 - crossPoint1)
+	alreadyInChild := make(map[int]bool, crossPoint2-crossPoint1)
 
 	for i := crossPoint1; i < crossPoint2; i++ {
 		alreadyInChild[c[i]] = true

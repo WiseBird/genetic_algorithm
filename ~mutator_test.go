@@ -1,17 +1,18 @@
 package genetic_algorithm
 
-import ( 
+import (
 	. "gopkg.in/check.v1"
 )
 
 type MutatorSuite struct{}
+
 var _ = Suite(&MutatorSuite{})
 
 func (s *MutatorSuite) TestMutatorBase_Elitism(c *C) {
 	trueGenes := BinaryGenes([]bool{true})
 	falseGenes := BinaryGenes([]bool{false})
 
-	pop := Chromosomes {
+	pop := Chromosomes{
 		NewBinaryChromosome(falseGenes),
 		NewBinaryChromosome(falseGenes),
 		NewBinaryChromosome(falseGenes),

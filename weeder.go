@@ -1,8 +1,8 @@
 package genetic_algorithm
 
 import (
-	"math"
 	log "github.com/cihub/seelog"
+	"math"
 )
 
 // Weeder weeds part of population.
@@ -14,6 +14,7 @@ type WeederInterface interface {
 type SimpleWeeder struct {
 	rate float64
 }
+
 // Creates new SimpleWeeder.
 // Rate must be in [0,100)
 func NewSimpleWeeder(rate float64) *SimpleWeeder {
@@ -33,5 +34,5 @@ func (weeder *SimpleWeeder) Weed(pop []ChromosomeInterface) []ChromosomeInterfac
 	log.Tracef("Weed Rate=%f Population=%d\n", weeder.rate, popLen)
 
 	toWeed := int(math.Floor(float64(popLen) / 100.0 * weeder.rate))
-	return pop[:popLen - toWeed]
+	return pop[:popLen-toWeed]
 }

@@ -3,13 +3,15 @@ package genetic_algorithm
 import (
 	log "github.com/cihub/seelog"
 )
+
 type orderCrossover struct {
-	virtualMethods orderCrossoverVirtualMInterface
+	virtualMethods            orderCrossoverVirtualMInterface
 	canProduceCopiesOfParents bool
 }
 type orderCrossoverVirtualMInterface interface {
 	copyFromFillerString(child, filler OrderedGenes, crossPoint1, crossPoint2 int)
 }
+
 func newOrderCrossover(vm orderCrossoverVirtualMInterface) *orderCrossover {
 	crossover := new(orderCrossover)
 
@@ -97,14 +99,15 @@ func (crossover *orderCrossover) crossover(p1, p2 *OrderedChromosome, crossPoint
 //
 // Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley , Nam-wook Yoo (1995)
 // http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3585
-type OrderCrossoverVer1 struct { }
+type OrderCrossoverVer1 struct{}
+
 func NewOrderCrossoverVer1() *orderCrossover {
 	return newOrderCrossover(new(OrderCrossoverVer1))
 }
 func (crossover *OrderCrossoverVer1) copyFromFillerString(child, filler OrderedGenes, crossPoint1, crossPoint2 int) {
 	genesLen := len(filler)
 
-	crossSection := make(map[int]bool, crossPoint2 - crossPoint1)
+	crossSection := make(map[int]bool, crossPoint2-crossPoint1)
 	for i := crossPoint1; i < crossPoint2; i++ {
 		crossSection[child[i]] = true
 	}
@@ -138,14 +141,15 @@ func (crossover *OrderCrossoverVer1) copyFromFillerString(child, filler OrderedG
 //
 // Source: On Genetic Crossover Operators for Relative Order Preservation
 // http://www.dmi.unict.it/mpavone/nc-cs/materiale/moscato89.pdf
-type OrderCrossoverVer2 struct { }
+type OrderCrossoverVer2 struct{}
+
 func NewOrderCrossoverVer2() *orderCrossover {
 	return newOrderCrossover(new(OrderCrossoverVer2))
 }
 func (crossover *OrderCrossoverVer2) copyFromFillerString(child, filler OrderedGenes, crossPoint1, crossPoint2 int) {
 	genesLen := len(filler)
 
-	crossSection := make(map[int]bool, crossPoint2 - crossPoint1)
+	crossSection := make(map[int]bool, crossPoint2-crossPoint1)
 	for i := crossPoint1; i < crossPoint2; i++ {
 		crossSection[child[i]] = true
 	}

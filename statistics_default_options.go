@@ -2,14 +2,15 @@ package genetic_algorithm
 
 // Options for default statistics
 type StatisticsDefaultOptions struct {
-	trackMinCosts bool
+	trackMinCosts    bool
 	trackGensWoImprv bool
-	trackMeanCost bool
-	trackMeanCosts bool
-	trackWorstCost bool
-	trackWorstCosts bool
+	trackMeanCost    bool
+	trackMeanCosts   bool
+	trackWorstCost   bool
+	trackWorstCosts  bool
 	trackMinCostsVar bool
 }
+
 func NewStatisticsDefaultOptions() *StatisticsDefaultOptions {
 	return new(StatisticsDefaultOptions)
 }

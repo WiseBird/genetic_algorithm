@@ -1,29 +1,30 @@
 package genetic_algorithm
 
 import (
-	"sort"
 	log "github.com/cihub/seelog"
+	"sort"
 )
 
 type OptimizerBase struct {
 	OptimizerBaseVirtualMInterface
 
 	initializer InitializerInterface
-	weeder WeederInterface
-	selector SelectorInterface
-	crossover CrossoverInterface
-	mutator MutatorInterface
+	weeder      WeederInterface
+	selector    SelectorInterface
+	crossover   CrossoverInterface
+	mutator     MutatorInterface
 
-	costFunction CostFunction
+	costFunction          CostFunction
 	statisticsConstructor StatisticsConstructor
-	statisticsOptions StatisticsOptionsInterface
-	stopCriterion StopCriterionInterface
+	statisticsOptions     StatisticsOptionsInterface
+	stopCriterion         StopCriterionInterface
 
-	popSize int
+	popSize   int
 	chromSize int
 
 	population Chromosomes
 }
+
 // MutatorBase's virtual methods
 type OptimizerBaseVirtualMInterface interface {
 	optimizeInner()
@@ -128,7 +129,7 @@ func (optimizer *OptimizerBase) Optimize() (ChromosomeInterface, StatisticsInter
 	}
 
 	iter := 0
-	for ;; {
+	for {
 		log.Infof("GENERATION %d", iter)
 
 		optimizer.sort()

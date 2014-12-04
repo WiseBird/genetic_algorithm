@@ -1,9 +1,9 @@
 package genetic_algorithm
 
 import (
+	"bytes"
 	"fmt"
 	log "github.com/cihub/seelog"
-	"bytes"
 )
 
 type EmptyChromosomeConstructor func(genesLen int) ChromosomeInterface
@@ -15,12 +15,13 @@ type ChromosomeInterface interface {
 }
 
 type Chromosomes []ChromosomeInterface
+
 func (c Chromosomes) Len() int           { return len(c) }
 func (c Chromosomes) Less(i, j int) bool { return c[i].Cost() < c[j].Cost() }
 func (c Chromosomes) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
 func (c Chromosomes) SetCost(cost CostFunction) {
 	log.Tracef("Setting cost for %d chroms", len(c))
-	
+
 	for i := 0; i < len(c); i++ {
 		var chrom = c[i]
 		chrom.SetCost(cost(chrom))

@@ -6,8 +6,9 @@ import (
 
 type BinaryRandomInitializer struct {
 }
+
 func NewBinaryRandomInitializer() *BinaryRandomInitializer {
-	initializer := new(BinaryRandomInitializer)	
+	initializer := new(BinaryRandomInitializer)
 
 	return initializer
 }

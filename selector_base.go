@@ -1,15 +1,15 @@
 package genetic_algorithm
 
 import (
-	log "github.com/cihub/seelog"
 	"fmt"
+	log "github.com/cihub/seelog"
 )
 
 // Base class for selectors.
 type SelectorBase struct {
 	SelectorBaseVirtualMInterface
 
-	population Chromosomes
+	population       Chromosomes
 	selectManyUnique bool
 }
 
@@ -61,13 +61,13 @@ func (selector *SelectorBase) SelectMany(count int) Chromosomes {
 		ind := selector.SelectorBaseVirtualMInterface.SelectInd()
 		if selector.selectManyUnique && selected[ind] {
 			j := 1
-			for ;; {
+			for {
 				if !selected[ind-j] && ind-j >= 0 {
-					ind = ind-j
+					ind = ind - j
 					break
 				}
 				if !selected[ind-j] && ind+j < len(selector.population) {
-					ind = ind+j
+					ind = ind + j
 					break
 				}
 				j++

@@ -6,8 +6,9 @@ import (
 
 type OrderedRandomInitializer struct {
 }
+
 func NewOrderedRandomInitializer() *OrderedRandomInitializer {
-	initializer := new(OrderedRandomInitializer)	
+	initializer := new(OrderedRandomInitializer)
 
 	return initializer
 }
@@ -21,8 +22,8 @@ func (initializer *OrderedRandomInitializer) Init(count, chromSize int) Chromoso
 		for geneInd := 0; geneInd < chromSize; geneInd++ {
 			randInd := rand.Intn(geneInd + 1)
 
-          	genes[geneInd] = genes[randInd]
-      		genes[randInd] = geneInd
+			genes[geneInd] = genes[randInd]
+			genes[randInd] = geneInd
 		}
 
 		result[chromeInd] = NewOrderedChromosome(genes)

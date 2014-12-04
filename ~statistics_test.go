@@ -1,11 +1,12 @@
 package genetic_algorithm
 
-import ( 
+import (
 	. "gopkg.in/check.v1"
 	"time"
 )
 
 type StatisticsSuite struct{}
+
 var _ = Suite(&StatisticsSuite{})
 
 func (s *StatisticsSuite) TestStatisticsDefault_TrackTime_When_Running(c *C) {

@@ -1,12 +1,13 @@
 package genetic_algorithm
 
-import ( 
+import (
 	. "gopkg.in/check.v1"
 	"reflect"
 	"sort"
 )
 
 type CrossoverSuite struct{}
+
 var _ = Suite(&CrossoverSuite{})
 
 func (s *CrossoverSuite) TestMultiPointCrossover_chooseCrossPoints(c *C) {
@@ -27,15 +28,29 @@ func (s *CrossoverSuite) TestMultiPointCrossover_chooseCrossPoints(c *C) {
 	multiPonintCrossover := NewMultiPointCrossover(NewEmptyBinaryChromosome, 3)
 	ps = multiPonintCrossover.chooseCrossPoints(2)
 	sort.Sort(sort.IntSlice(ps))
-	c.Assert(ps, DeepEquals, []int{0,1,2})
+	c.Assert(ps, DeepEquals, []int{0, 1, 2})
+}
+func (s *CrossoverSuite) TestMultiPointCrossover_threePoint(c *C) {
+	parent1Genes := BinaryGenes { true, true }
+	parent2Genes := BinaryGenes { false, false }
+
+	expectedPart1Genes := BinaryGenes { true, false }
+	expectedPart2Genes := BinaryGenes { false, true }
+
+	parent1 := NewBinaryChromosome(parent1Genes)
+	parent2 := NewBinaryChromosome(parent2Genes)
+
+	children := NewMultiPointCrossover(NewEmptyBinaryChromosome, 3).Crossover([]ChromosomeInterface {parent1, parent2})
+
+	compareTwoBinaryGenesWithoutOrder(c, children[0], children[1], expectedPart1Genes, expectedPart2Genes)
 }
 
 func (s *CrossoverSuite) TestOrderCrossoverVer1_crossover(c *C) {
-	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	parent2Genes := OrderedGenes { 8, 4, 1, 5, 9, 3, 6, 2, 7 }
+	parent1Genes := OrderedGenes{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	parent2Genes := OrderedGenes{8, 4, 1, 5, 9, 3, 6, 2, 7}
 
-	expectedPart1Genes := OrderedGenes { 2, 7, 3, 4, 5, 6, 8, 1, 9 }
-	expectedPart2Genes := OrderedGenes { 7, 8, 1, 5, 9, 3, 2, 4, 6 }
+	expectedPart1Genes := OrderedGenes{2, 7, 3, 4, 5, 6, 8, 1, 9}
+	expectedPart2Genes := OrderedGenes{7, 8, 1, 5, 9, 3, 2, 4, 6}
 
 	parent1 := NewOrderedChromosome(parent1Genes)
 	parent2 := NewOrderedChromosome(parent2Genes)
@@ -45,11 +60,11 @@ func (s *CrossoverSuite) TestOrderCrossoverVer1_crossover(c *C) {
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }
 func (s *CrossoverSuite) TestOrderCrossoverVer1_crossoverOnEnd(c *C) {
-	parent1Genes := OrderedGenes { 1, 2, 3, 4 }
-	parent2Genes := OrderedGenes { 2, 4, 1, 3 }
+	parent1Genes := OrderedGenes{1, 2, 3, 4}
+	parent2Genes := OrderedGenes{2, 4, 1, 3}
 
-	expectedPart1Genes := OrderedGenes { 2, 1, 3, 4 }
-	expectedPart2Genes := OrderedGenes { 1, 2, 4, 3 }
+	expectedPart1Genes := OrderedGenes{2, 1, 3, 4}
+	expectedPart2Genes := OrderedGenes{1, 2, 4, 3}
 
 	parent1 := NewOrderedChromosome(parent1Genes)
 	parent2 := NewOrderedChromosome(parent2Genes)
@@ -59,11 +74,11 @@ func (s *CrossoverSuite) TestOrderCrossoverVer1_crossoverOnEnd(c *C) {
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }
 func (s *CrossoverSuite) TestOrderCrossoverVer2_crossover(c *C) {
-	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	parent2Genes := OrderedGenes { 8, 4, 1, 5, 9, 3, 6, 2, 7 }
+	parent1Genes := OrderedGenes{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	parent2Genes := OrderedGenes{8, 4, 1, 5, 9, 3, 6, 2, 7}
 
-	expectedPart1Genes := OrderedGenes { 8, 1, 3, 4, 5, 6, 9, 2, 7 }
-	expectedPart2Genes := OrderedGenes { 2, 4, 1, 5, 9, 3, 6, 7, 8 }
+	expectedPart1Genes := OrderedGenes{8, 1, 3, 4, 5, 6, 9, 2, 7}
+	expectedPart2Genes := OrderedGenes{2, 4, 1, 5, 9, 3, 6, 7, 8}
 
 	parent1 := NewOrderedChromosome(parent1Genes)
 	parent2 := NewOrderedChromosome(parent2Genes)
@@ -74,26 +89,26 @@ func (s *CrossoverSuite) TestOrderCrossoverVer2_crossover(c *C) {
 }
 
 func (s *CrossoverSuite) TestPositionCrossover_crossover(c *C) {
-	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7, 8, 9 }
-	parent2Genes := OrderedGenes { 8, 4, 1, 5, 9, 3, 6, 2, 7 }
+	parent1Genes := OrderedGenes{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	parent2Genes := OrderedGenes{8, 4, 1, 5, 9, 3, 6, 2, 7}
 
-	expectedPart1Genes := OrderedGenes { 1, 8, 3, 4, 5, 6, 7, 9, 2 }
-	expectedPart2Genes := OrderedGenes { 8, 2, 1, 4, 5, 3, 6, 7, 9 }
+	expectedPart1Genes := OrderedGenes{1, 8, 3, 4, 5, 6, 7, 9, 2}
+	expectedPart2Genes := OrderedGenes{8, 2, 1, 4, 5, 3, 6, 7, 9}
 
 	parent1 := NewOrderedChromosome(parent1Genes)
 	parent2 := NewOrderedChromosome(parent2Genes)
 
-	c1, c2 := NewPositionCrossover().crossover(parent1, parent2, []int { 0, 2, 5, 6 })
+	c1, c2 := NewPositionCrossover().crossover(parent1, parent2, []int{0, 2, 5, 6})
 
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }
 
 func (s *CrossoverSuite) TestPartiallyMappedCrossover_crossover(c *C) {
-	parent1Genes := OrderedGenes { 1, 2, 3, 4, 5, 6, 7 }
-	parent2Genes := OrderedGenes { 3, 6, 5, 2, 1, 4, 7 }
+	parent1Genes := OrderedGenes{1, 2, 3, 4, 5, 6, 7}
+	parent2Genes := OrderedGenes{3, 6, 5, 2, 1, 4, 7}
 
-	expectedPart1Genes := OrderedGenes { 1, 6, 3, 4, 5, 2, 7 }
-	expectedPart2Genes := OrderedGenes { 3, 4, 5, 2, 1, 6, 7 }
+	expectedPart1Genes := OrderedGenes{1, 6, 3, 4, 5, 2, 7}
+	expectedPart2Genes := OrderedGenes{3, 4, 5, 2, 1, 6, 7}
 
 	parent1 := NewOrderedChromosome(parent1Genes)
 	parent2 := NewOrderedChromosome(parent2Genes)
@@ -114,7 +129,7 @@ func compareTwoBinaryGenesWithoutOrder(c *C, c1, c2 ChromosomeInterface, ec1, ec
 	}
 
 	if !reflect.DeepEqual(c2.Genes(), expC2) {
-		c.Fatalf("Unexpected child2 genes. Exp: [%v]. Got: [%v]", expC2, c2.Genes())	
+		c.Fatalf("Unexpected child2 genes. Exp: [%v]. Got: [%v]", expC2, c2.Genes())
 	}
 }
 func compareTwoOrderedGenesWithoutOrder(c *C, c1, c2 ChromosomeInterface, ec1, ec2 OrderedGenes) {
@@ -128,6 +143,6 @@ func compareTwoOrderedGenesWithoutOrder(c *C, c1, c2 ChromosomeInterface, ec1, e
 	}
 
 	if !reflect.DeepEqual(c2.Genes(), expC2) {
-		c.Fatalf("Unexpected child2 genes. Exp: [%v]. Got: [%v]", expC2, c2.Genes())	
+		c.Fatalf("Unexpected child2 genes. Exp: [%v]. Got: [%v]", expC2, c2.Genes())
 	}
 }

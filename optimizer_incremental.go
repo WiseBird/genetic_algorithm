@@ -37,7 +37,7 @@ func (optimizer *IncrementalOptimizer) breed() {
 
 	optimizer.selector.Prepare(optimizer.population)
 
-	for ;; {
+	for {
 		chromsToCross := optimizer.selector.SelectMany(optimizer.crossover.ParentsCount())
 		log.Debugf("Parents:\n%v", chromsToCross)
 

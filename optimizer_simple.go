@@ -1,15 +1,15 @@
 package genetic_algorithm
 
 import (
-	"math/rand"
 	log "github.com/cihub/seelog"
+	"math/rand"
 )
 
 type SimpleOptimizer struct {
 	*OptimizerBase
 
 	crossoverProbability float64
-	elitism int
+	elitism              int
 
 	secondPopulation Chromosomes
 }
@@ -45,7 +45,7 @@ func (optimizer *SimpleOptimizer) breed() {
 
 	optimizer.selector.Prepare(optimizer.population)
 
-	for ;; {
+	for {
 		chromsToCross := optimizer.selector.SelectMany(optimizer.crossover.ParentsCount())
 		log.Debugf("Parents:\n%v", chromsToCross)
 

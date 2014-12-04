@@ -1,9 +1,9 @@
 package genetic_algorithm
 
 import (
-	"testing"
-	. "gopkg.in/check.v1"
 	log "github.com/cihub/seelog"
+	. "gopkg.in/check.v1"
+	"testing"
 )
 
 func Test(t *testing.T) {
@@ -18,11 +18,12 @@ func setupLogger() {
 	logger, err := log.LoggerFromConfigAsString("<seelog minlevel=\"info\" type=\"sync\"></seelog>")
 
 	if err != nil {
-	    panic(err)
+		panic(err)
 	}
 
 	log.ReplaceLogger(logger)
 }
+
 /*
 mockgen -source="selector_base.go" -destination="~mock_selector_base_vm.go" -package="genetic_algorithm"
 */

@@ -1,13 +1,15 @@
 package genetic_algorithm
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
-	"bytes"
 )
 
 type OrderedGenes []int
+
 func (g OrderedGenes) Len() int { return len(g) }
+
 /*func (g OrderedGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
 	bgenes, ok := genes.(OrderedGenes)
 	if !ok {
@@ -29,6 +31,7 @@ type OrderedChromosome struct {
 	*ChromosomeBase
 	genes OrderedGenes
 }
+
 func NewOrderedChromosome(genes OrderedGenes) *OrderedChromosome {
 	chrom := new(OrderedChromosome)
 

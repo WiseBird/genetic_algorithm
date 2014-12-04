@@ -9,7 +9,7 @@ import (
 // Warning! In order to use this selector cost value must be normalized, i.e. chromosome with cost=0 is the best solution.
 type RouletteWheelCostWeightingSelector struct {
 	*SelectorBase
-	
+
 	fitnessSum float64
 }
 
@@ -41,7 +41,7 @@ func (selector *RouletteWheelCostWeightingSelector) fitness(cost float64) float6
 		panic("Can't calc fitness for negative cost")
 	}
 
-	return 1 / ( cost + 1)
+	return 1 / (cost + 1)
 }
 func (selector *RouletteWheelCostWeightingSelector) SelectInd() int {
 	rnd := rand.Float64() * selector.fitnessSum

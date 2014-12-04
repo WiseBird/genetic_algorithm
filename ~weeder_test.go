@@ -1,10 +1,11 @@
 package genetic_algorithm
 
-import ( 
+import (
 	. "gopkg.in/check.v1"
 )
 
 type WeederSuite struct{}
+
 var _ = Suite(&WeederSuite{})
 
 func (s *WeederSuite) TestSimpleWeeder(c *C) {

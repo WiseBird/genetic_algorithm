@@ -1,33 +1,34 @@
 package genetic_algorithm
 
 import (
-	"time"
-	"math"
 	log "github.com/cihub/seelog"
+	"math"
+	"time"
 )
 
 // Default realization of StatisticsInterface
 type StatisticsDefault struct {
-	started bool
+	started   bool
 	startTime time.Time
-	elapsed time.Duration
+	elapsed   time.Duration
 
 	generations int
 
-	minCost float64
-	gensWoImprv int
+	minCost              float64
+	gensWoImprv          int
 	prevDifferentMinCost float64
-	minCosts []float64
-	minCostsVar float64
+	minCosts             []float64
+	minCostsVar          float64
 
-	meanCost float64
+	meanCost  float64
 	meanCosts []float64
 
-	worstCost float64
+	worstCost  float64
 	worstCosts []float64
 
 	options *StatisticsDefaultOptions
 }
+
 func NewStatisticsDefault(options StatisticsOptionsInterface) StatisticsInterface {
 	opts, ok := options.(*StatisticsDefaultOptions)
 	if !ok {
@@ -108,11 +109,11 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 	}
 
 	if statistics.options.trackWorstCost {
-		statistics.worstCost = population[len(population) - 1].Cost()
+		statistics.worstCost = population[len(population)-1].Cost()
 		log.Tracef("WorstCost %v", statistics.worstCost)
 	}
 	if statistics.options.trackWorstCosts {
-		statistics.worstCosts = append(statistics.worstCosts, population[len(population) - 1].Cost())
+		statistics.worstCosts = append(statistics.worstCosts, population[len(population)-1].Cost())
 		log.Tracef("WorstCosts %v", statistics.worstCosts)
 	}
 }
@@ -121,6 +122,7 @@ func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
 func (statistics *StatisticsDefault) Generations() int {
 	return statistics.generations
 }
+
 // Returns time elapsed from start to end.
 // If optimization are in progress then returns time elapsed from start.
 func (statistics *StatisticsDefault) Duration() time.Duration {
@@ -130,37 +132,45 @@ func (statistics *StatisticsDefault) Duration() time.Duration {
 
 	return time.Since(statistics.startTime)
 }
+
 // Min cost for last iteration
 func (statistics *StatisticsDefault) MinCost() float64 {
 	return statistics.minCost
 }
+
 // Min cost for each iteration
 // Len would be `Generations() + 1` because of initial value
 func (statistics *StatisticsDefault) MinCosts() []float64 {
 	return statistics.minCosts
 }
-// Number of generations during which the min cost remains unchanged 
+
+// Number of generations during which the min cost remains unchanged
 func (statistics *StatisticsDefault) GenerationsWithoutImprovements() int {
 	return statistics.gensWoImprv
 }
+
 // Variance of min costs
 // Variance equals NaN until two different values of MinCost are obtained
 func (statistics *StatisticsDefault) MinCostsVar() float64 {
 	return statistics.minCostsVar
 }
+
 // Mean cost of last iteration
 func (statistics *StatisticsDefault) MeanCost() float64 {
 	return statistics.meanCost
 }
+
 // Mean cost of each iteration
 // Len would be `Iterations() + 1` because of initial value
 func (statistics *StatisticsDefault) MeanCosts() []float64 {
 	return statistics.meanCosts
 }
+
 // Worst cost for last iteration
 func (statistics *StatisticsDefault) WorstCost() float64 {
 	return statistics.worstCost
 }
+
 // Worst cost for each iteration
 // Len would be `Iterations() + 1` because of initial value
 func (statistics *StatisticsDefault) WorstCosts() []float64 {

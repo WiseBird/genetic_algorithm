@@ -5,23 +5,25 @@ import (
 )
 
 type StopCriterionDefault struct {
-	maxGenerations int
+	maxGenerations     int
 	maxGenerationsCrit bool
 
-	minCost float64
+	minCost     float64
 	minCostCrit bool
 
-	maxGensWoImprv int
+	maxGensWoImprv     int
 	maxGensWoImprvCrit bool
 
-	minMinCostsVar float64
+	minMinCostsVar     float64
 	minMinCostsVarCrit bool
 }
+
 func NewStopCriterionDefault() *StopCriterionDefault {
 	criterion := new(StopCriterionDefault)
 
 	return criterion
 }
+
 // Stop when specified number of generations is reached
 func (criterion *StopCriterionDefault) Max_Generations(value int) *StopCriterionDefault {
 	if value < 0 {
@@ -32,18 +34,21 @@ func (criterion *StopCriterionDefault) Max_Generations(value int) *StopCriterion
 	criterion.maxGenerations = value
 	return criterion
 }
+
 // Stop when min cost less than or equals value
 func (criterion *StopCriterionDefault) Min_Cost(value float64) *StopCriterionDefault {
 	criterion.minCostCrit = true
 	criterion.minCost = value
 	return criterion
 }
+
 // Stop when min cost wasn't changed for value generations
 func (criterion *StopCriterionDefault) Max_GenerationsWithoutImprovements(value int) *StopCriterionDefault {
 	criterion.maxGensWoImprvCrit = true
 	criterion.maxGensWoImprv = value
 	return criterion
 }
+
 // Stop when variance of min costs less than or equals value
 func (criterion *StopCriterionDefault) Min_MinCostsVar(value float64) *StopCriterionDefault {
 	criterion.minMinCostsVarCrit = true

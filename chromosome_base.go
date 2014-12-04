@@ -5,6 +5,7 @@ type ChromosomeBase struct {
 	costVal    float64
 	fitnessVal float64
 }
+
 func NewChromosomeBase() *ChromosomeBase {
 	return &ChromosomeBase{}
 }

@@ -5,23 +5,24 @@ import (
 )
 
 type StatisticsDefaultAggregator struct {
-	options *StatisticsDefaultOptions
+	options    *StatisticsDefaultOptions
 	statistics []*StatisticsDefault
 
 	duration time.Duration
 
 	generations int
 
-	minCost float64
-	minCosts []float64
+	minCost     float64
+	minCosts    []float64
 	minCostsVar float64
 
-	meanCost float64
+	meanCost  float64
 	meanCosts []float64
 
-	worstCost float64
+	worstCost  float64
 	worstCosts []float64
 }
+
 func NewStatisticsDefaultAggregator(options *StatisticsDefaultOptions) *StatisticsDefaultAggregator {
 	aggregator := new(StatisticsDefaultAggregator)
 
@@ -52,7 +53,7 @@ func (aggregator *StatisticsDefaultAggregator) Compute() {
 			return int64(aggregator.statistics[i].generations)
 		}))
 
-	aggregator.minCost = 
+	aggregator.minCost =
 		meanFloat64Iter(count, func(i int) float64 {
 			return aggregator.statistics[i].minCost
 		})
@@ -64,14 +65,14 @@ func (aggregator *StatisticsDefaultAggregator) Compute() {
 			})
 	}
 	if aggregator.options.trackMinCostsVar {
-		aggregator.minCostsVar = 
+		aggregator.minCostsVar =
 			meanFloat64Iter(count, func(i int) float64 {
 				return aggregator.statistics[i].minCostsVar
 			})
 	}
 
 	if aggregator.options.trackMeanCost {
-		aggregator.meanCost = 
+		aggregator.meanCost =
 			meanFloat64Iter(count, func(i int) float64 {
 				return aggregator.statistics[i].meanCost
 			})
@@ -84,7 +85,7 @@ func (aggregator *StatisticsDefaultAggregator) Compute() {
 	}
 
 	if aggregator.options.trackWorstCost {
-		aggregator.worstCost = 
+		aggregator.worstCost =
 			meanFloat64Iter(count, func(i int) float64 {
 				return aggregator.statistics[i].worstCost
 			})

@@ -1,24 +1,25 @@
 package genetic_algorithm
 
 import (
-	"math"
 	. "gopkg.in/check.v1"
+	"math"
 )
 
 type HelperSuite struct{}
+
 var _ = Suite(&HelperSuite{})
 
 func (s *HelperSuite) Test_MeanInt64(c *C) {
-	values := []int64{2,3,4}
+	values := []int64{2, 3, 4}
 	result := int64(3)
 
 	c.Assert(meanInt64(values), Equals, result)
 }
 func (s *HelperSuite) Test_MeanFloat64Arr(c *C) {
 	values := [][]float64{
-		[]float64 { 2 },
-		[]float64 { 8, 6, 4 },
-		[]float64 { 20, 19, 15, 12, 9 },
+		[]float64{2},
+		[]float64{8, 6, 4},
+		[]float64{20, 19, 15, 12, 9},
 	}
 	result := []float64{10, 9, 7, 6, 5}
 
@@ -29,8 +30,8 @@ func (s *HelperSuite) Test_MeanFloat64Arr(c *C) {
 }
 func (s *HelperSuite) Test_MeanFloat64Arr_BigNumbers(c *C) {
 	values := [][]float64{
-		[]float64 { 2e30, 1e8 },
-		[]float64 { 1e10, 1e8 },
+		[]float64{2e30, 1e8},
+		[]float64{1e10, 1e8},
 	}
 	result := []float64{1e30, 1e8}
 
@@ -51,13 +52,12 @@ func (s *HelperSuite) Test_chooseTwoPointCrossSection_secondCrossPoint_notEquals
 }
 func (s *HelperSuite) Test_chooseTwoPointCrossSection_secondCrossPoint_cantCopiesOfParent(c *C) {
 	for i := 0; i < 10; i++ {
-		p1, p2 := chooseTwoPointCrossSection(2, false) 
+		p1, p2 := chooseTwoPointCrossSection(2, false)
 		if ((p1 != 0) || (p2 != 1)) && ((p1 != 1) || (p2 != 2)) {
 			c.Fatalf("Choose inappropriate points: %d:%d", p2, p2)
 		}
 	}
 }
-
 
 //Within Delta Custom Checker
 type withinChecker struct {

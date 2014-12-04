@@ -1,16 +1,17 @@
 package genetic_algorithm
 
 import (
-	"math/rand"
 	log "github.com/cihub/seelog"
+	"math/rand"
 	"sort"
 )
 
 type MultiPointCrossover struct {
-	crossPointsCount int
-	chromConstr EmptyChromosomeConstructor
+	crossPointsCount          int
+	chromConstr               EmptyChromosomeConstructor
 	canProduceCopiesOfParents bool
 }
+
 func NewMultiPointCrossover(chromConstr EmptyChromosomeConstructor, crossPointsCount int) *MultiPointCrossover {
 	if crossPointsCount <= 0 {
 		panic("crossPointsCount must be positive")
@@ -79,19 +80,19 @@ func (crossover *MultiPointCrossover) checkGenesLen(genesLen int) {
 func (crossover *MultiPointCrossover) chooseCrossPoints(genesLen int) []int {
 	if crossover.crossPointsCount == 1 {
 		if crossover.canProduceCopiesOfParents {
-			return []int { rand.Intn(genesLen + 1) }
+			return []int{rand.Intn(genesLen + 1)}
 		} else {
-			return []int { rand.Intn(genesLen - 1) + 1 }
+			return []int{rand.Intn(genesLen-1) + 1}
 		}
 	} else if crossover.crossPointsCount == 2 {
 		p1, p2 := chooseTwoPointCrossSection(genesLen, crossover.canProduceCopiesOfParents)
-		return []int { p1, p2 }
+		return []int{p1, p2}
 	}
 
 	crossPointsMap := make(map[int]bool, crossover.crossPointsCount)
 	crossPointsList := make([]int, 0, crossover.crossPointsCount)
 	for i := 0; i < crossover.crossPointsCount; i++ {
-		for ;; {
+		for {
 			crossPoint := rand.Intn(genesLen + 1)
 			if !crossPointsMap[crossPoint] {
 				crossPointsMap[crossPoint] = true
@@ -132,7 +133,6 @@ func (crossover *MultiPointCrossover) crossover(p1, p2 ChromosomeInterface, cros
 		c2genes.Copy(p2genes, start, start, crossPoint)
 		c1genes, c2genes = c2genes, c1genes
 	}
-
 
 	c1genes.Copy(p1genes, crossPoint, crossPoint, genesLen)
 	c2genes.Copy(p2genes, crossPoint, crossPoint, genesLen)

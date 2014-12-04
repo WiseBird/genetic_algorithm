@@ -41,20 +41,20 @@ func (selector *TournamentSelector) SelectInd() int {
 	for i := 0; i < selector.contestants; i++ {
 		contestants[i] = rand.Intn(len(selector.population))
 	}
-	
+
 	// Our population is sortes. Lesser index lesser cost.
 	sort.Sort(sort.IntSlice(contestants))
 
 	r := rand.Float64()
 	prob := float64(0)
-	for i := 0; i < selector.contestants - 1; i++ {
+	for i := 0; i < selector.contestants-1; i++ {
 		prob += selector.ithProbability(i)
 		if r < prob {
 			return contestants[i]
 		}
 	}
-	return contestants[selector.contestants - 1]
+	return contestants[selector.contestants-1]
 }
 func (selector *TournamentSelector) ithProbability(i int) float64 {
-	return selector.probability * math.Pow((float64(1) - selector.probability), float64(i))
+	return selector.probability * math.Pow((float64(1)-selector.probability), float64(i))
 }
