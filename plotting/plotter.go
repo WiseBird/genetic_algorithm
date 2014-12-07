@@ -169,7 +169,7 @@ func newPlot(plotter *Plotter, title string) *plot {
 		panic(err)
 	}
 
-	p.plot.Title.Text = "Plot"
+	p.plot.Title.Text = title
 	p.plot.X.Label.Text = "Generations"
 	p.plot.Y.Label.Text = "Cost"
 	p.plot.Legend.Top = true
