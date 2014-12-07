@@ -173,6 +173,65 @@ func (s *CrossoverSuite) TestOrderBasedCrossover_crossover(c *C) {
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }
 
+func (s *CrossoverSuite) TestEdgeRecombinationCrossover_generateMatrix(c *C) {
+	parent1Genes := OrderedGenes{1, 2, 3, 5, 6, 4}
+	parent2Genes := OrderedGenes{3, 1, 2, 4, 5, 6}
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	matrix := NewEdgeRecombinationCrossover().generateMatrix(parent1, parent2)
+
+	result := map[int]map[int]bool{
+		1: map[int]bool{2: true, 3: true, 4: true},
+		2: map[int]bool{1: true, 3: true, 4: true},
+		3: map[int]bool{1: true, 2: true, 5: true, 6: true},
+		4: map[int]bool{1: true, 2: true, 5: true, 6: true},
+		5: map[int]bool{3: true, 4: true, 6: true},
+		6: map[int]bool{3: true, 4: true, 5: true},
+	}
+
+	c.Assert(matrix, DeepEquals, result)
+}
+func (s *CrossoverSuite) TestEdgeRecombinationCrossover_fillChild(c *C) {
+	matrix := map[int]map[int]bool{
+		1: map[int]bool{4: true, 5: true, 6: true},
+		2: map[int]bool{3: true, 4: true, 6: true},
+		3: map[int]bool{2: true, 5: true},
+		4: map[int]bool{1: true, 2: true},
+		5: map[int]bool{1: true, 3: true, 6: true},
+		6: map[int]bool{1: true, 2: true, 5: true},
+	}
+
+	c1genes := make(OrderedGenes, 6)
+
+	NewEdgeRecombinationCrossover().fillChild(c1genes, OrderedGenes{1}, OrderedGenes{1}, matrix)
+
+	result1 := OrderedGenes{1, 4, 2, 3, 5, 6}
+	result2 := OrderedGenes{1, 4, 2, 6, 5, 3}
+
+	if !reflect.DeepEqual(c1genes, result1) && !reflect.DeepEqual(c1genes, result2) {
+		c.Fatalf("Unexpected genes: %v", c1genes)
+	}
+}
+func (s *CrossoverSuite) TestEdgeRecombinationCrossover_crossover(c *C) {
+	parent1Genes := OrderedGenes{1, 0, 7, 4, 3, 2, 6, 5}
+	parent2Genes := OrderedGenes{5, 3, 4, 2, 6, 7, 1, 0}
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	for j := 0; j < 10; j++ {
+		children := NewEdgeRecombinationCrossover().Crossover([]ChromosomeInterface{parent1, parent2})
+		childGenes := children[0].Genes().(OrderedGenes)
+		for i := 0; i < len(childGenes); i++ {
+			if childGenes[i] == -1 {
+				c.Fatalf("Unexpected genes: %v", childGenes)
+			}
+		}
+	}
+}
+
 func compareTwoBinaryGenesWithoutOrder(c *C, c1, c2 ChromosomeInterface, ec1, ec2 BinaryGenes) {
 	var expC2 BinaryGenes
 	if reflect.DeepEqual(c1.Genes(), ec1) {

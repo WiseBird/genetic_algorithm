@@ -54,13 +54,13 @@ func main() {
 					Iterations(iterations)).
 				AddMinCostDataSet().Name("ROX").Done().
 				Done().
-			AddDataProvider(NewOptimizerAggregator().
+			/*AddDataProvider(NewOptimizerAggregator().
 					Optimizer(createOptimizer(6)).
 					StatisticsOptions(NewStatisticsDefaultOptions().
 						TrackMinCosts()).
 					Iterations(iterations)).
 				AddMinCostDataSet().Name("PPX").Done().
-				Done().
+				Done().*/
 			AddDataProvider(NewOptimizerAggregator().
 					Optimizer(createOptimizer(7)).
 					StatisticsOptions(NewStatisticsDefaultOptions().
@@ -68,12 +68,19 @@ func main() {
 					Iterations(iterations)).
 				AddMinCostDataSet().Name("CX").Done().
 				Done().
-			AddDataProvider(NewOptimizerAggregator().
+			/*AddDataProvider(NewOptimizerAggregator().
 					Optimizer(createOptimizer(8)).
 					StatisticsOptions(NewStatisticsDefaultOptions().
 						TrackMinCosts()).
 					Iterations(iterations)).
 				AddMinCostDataSet().Name("OX2").Done().
+				Done().*/
+			AddDataProvider(NewOptimizerAggregator().
+					Optimizer(createOptimizer(9)).
+					StatisticsOptions(NewStatisticsDefaultOptions().
+						TrackMinCosts()).
+					Iterations(iterations)).
+				AddMinCostDataSet().Name("ERX").Done().
 				Done().
 			Done().
 		Draw(8, 4, "plot.png")
@@ -114,6 +121,8 @@ func createOptimizer(ver int) OptimizerInterface {
 		optimizer.Crossover(NewCycleCrossover())
 	} else if ver == 8 {
 		optimizer.Crossover(NewOrderBasedCrossover())
+	} else if ver == 9 {
+		optimizer.Crossover(NewEdgeRecombinationCrossover())
 	}
 
 	return optimizer
