@@ -24,14 +24,14 @@ func main() {
 					StatisticsOptions(NewStatisticsDefaultOptions().
 						TrackMinCosts()).
 					Iterations(iterations)).
-				AddMinCostDataSet().Name("OX1").Done().
+				AddMinCostDataSet().Name("OX1.1").Done().
 				Done().
 			AddDataProvider(NewOptimizerAggregator().
 					Optimizer(createOptimizer(2)).
 					StatisticsOptions(NewStatisticsDefaultOptions().
 						TrackMinCosts()).
 					Iterations(iterations)).
-				AddMinCostDataSet().Name("OX2").Done().
+				AddMinCostDataSet().Name("OX1.2").Done().
 				Done().
 			AddDataProvider(NewOptimizerAggregator().
 					Optimizer(createOptimizer(3)).
@@ -45,7 +45,7 @@ func main() {
 					StatisticsOptions(NewStatisticsDefaultOptions().
 						TrackMinCosts()).
 					Iterations(iterations)).
-				AddMinCostDataSet().Name("PX").Done().
+				AddMinCostDataSet().Name("POS").Done().
 				Done().
 			AddDataProvider(NewOptimizerAggregator().
 					Optimizer(createOptimizer(5)).
@@ -53,6 +53,27 @@ func main() {
 						TrackMinCosts()).
 					Iterations(iterations)).
 				AddMinCostDataSet().Name("ROX").Done().
+				Done().
+			AddDataProvider(NewOptimizerAggregator().
+					Optimizer(createOptimizer(6)).
+					StatisticsOptions(NewStatisticsDefaultOptions().
+						TrackMinCosts()).
+					Iterations(iterations)).
+				AddMinCostDataSet().Name("PPX").Done().
+				Done().
+			AddDataProvider(NewOptimizerAggregator().
+					Optimizer(createOptimizer(7)).
+					StatisticsOptions(NewStatisticsDefaultOptions().
+						TrackMinCosts()).
+					Iterations(iterations)).
+				AddMinCostDataSet().Name("CX").Done().
+				Done().
+			AddDataProvider(NewOptimizerAggregator().
+					Optimizer(createOptimizer(8)).
+					StatisticsOptions(NewStatisticsDefaultOptions().
+						TrackMinCosts()).
+					Iterations(iterations)).
+				AddMinCostDataSet().Name("OX2").Done().
 				Done().
 			Done().
 		Draw(8, 4, "plot.png")
@@ -87,6 +108,12 @@ func createOptimizer(ver int) OptimizerInterface {
 		optimizer.Crossover(NewPositionBasedCrossover())
 	} else if ver == 5 {
 		optimizer.Crossover(NewRelativeOrderingCrossover(chromSize/2))
+	} else if ver == 6 {
+		optimizer.Crossover(NewPrecedencePreservativeCrossover())
+	} else if ver == 7 {
+		optimizer.Crossover(NewCycleCrossover())
+	} else if ver == 8 {
+		optimizer.Crossover(NewOrderBasedCrossover())
 	}
 
 	return optimizer

@@ -128,6 +128,51 @@ func (s *CrossoverSuite) TestRelativeOrderingCrossover_crossover(c *C) {
 	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
 }
 
+func (s *CrossoverSuite) TestPrecedencePreservativeCrossover_crossover(c *C) {
+	parent1Genes := OrderedGenes{1, 2, 3, 4, 5, 6}
+	parent2Genes := OrderedGenes{3, 1, 2, 6, 4, 5}
+
+	expectedPart1Genes := OrderedGenes{1, 3, 2, 4, 6, 5}
+	expectedPart2Genes := OrderedGenes{3, 1, 2, 6, 4, 5}
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	c1, c2 := NewPrecedencePreservativeCrossover().crossover(parent1, parent2, []int{1, 2, 1, 1, 2, 2})
+
+	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
+}
+
+func (s *CrossoverSuite) TestCycleCrossover_crossover(c *C) {
+	parent1Genes := OrderedGenes{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+	parent2Genes := OrderedGenes{8, 4, 7, 3, 6, 2, 5, 1, 9, 0}
+
+	expectedPart1Genes := OrderedGenes{0, 4, 7, 3, 6, 2, 5, 1, 8, 9}
+	expectedPart2Genes := OrderedGenes{8, 1, 2, 3, 4, 5, 6, 7, 9, 0}
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	children := NewCycleCrossover().Crossover([]ChromosomeInterface{parent1, parent2})
+
+	compareTwoOrderedGenesWithoutOrder(c, children[0], children[1], expectedPart1Genes, expectedPart2Genes)
+}
+
+func (s *CrossoverSuite) TestOrderBasedCrossover_crossover(c *C) {
+	parent1Genes := OrderedGenes{1, 2, 3, 4, 5, 6, 7, 8, 9}
+	parent2Genes := OrderedGenes{5, 4, 6, 3, 1, 9, 2, 7, 8}
+
+	expectedPart1Genes := OrderedGenes{2, 4, 5, 3, 1, 6, 9, 7, 8}
+	expectedPart2Genes := OrderedGenes{4, 2, 3, 1, 5, 6, 7, 9, 8}
+
+	parent1 := NewOrderedChromosome(parent1Genes)
+	parent2 := NewOrderedChromosome(parent2Genes)
+
+	c1, c2 := NewOrderBasedCrossover().crossover(parent1, parent2, []int{1, 4, 5, 8})
+
+	compareTwoOrderedGenesWithoutOrder(c, c1, c2, expectedPart1Genes, expectedPart2Genes)
+}
+
 func compareTwoBinaryGenesWithoutOrder(c *C, c1, c2 ChromosomeInterface, ec1, ec2 BinaryGenes) {
 	var expC2 BinaryGenes
 	if reflect.DeepEqual(c1.Genes(), ec1) {

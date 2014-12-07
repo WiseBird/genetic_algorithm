@@ -6,43 +6,44 @@ import (
 )
 
 // Crossover for ordered chromosomes.
-// Generalization of OrderCrossoverVer2.
 // Tends to preserve relative order.
 //
-// parent1:       A B C D E
-// parent2:       d b e a c
+// parent1:       A B C D E F
+// parent2:       d f b e a c
 //
-// mask:          _ * _ * _
-// parent1:       A B C D E
+// mask:          * * _ * _ _
+// parent1:       A B C D E F
+// The genes 'A B D' will be copied in child in order from parent1 and in paces from parent2
 //
-// child1 step1:  _ B _ D _
+// child1 step1:  A _ B _ D _
 //
-// parent2:       d b e a c
-// filler block:  _ _ e a c
+// parent2:       d f b e a c
+// filler block:  _ f _ e _ c
 //
-// child1:        e B a D c
+// child1:        A f B e D c
+// Despite the fact that OrderBased behaves differently from Position crossover they are identical in expectation.
 //
-// Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley, Nam-wook Yoo (1995)
+// Source: Modeling Simple Genetic Algorithms for Permutation Problems. Darrell Whitley , Nam-wook Yoo (1995)
 // http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3585
-type PositionBasedCrossover struct {
+type OrderBasedCrossover struct {
 	canProduceCopiesOfParents bool
 }
 
-func NewPositionBasedCrossover() *PositionBasedCrossover {
-	crossover := new(PositionBasedCrossover)
+func NewOrderBasedCrossover() *OrderBasedCrossover {
+	crossover := new(OrderBasedCrossover)
 
 	return crossover
 }
 
-func (crossover *PositionBasedCrossover) ParentsCount() int {
+func (crossover *OrderBasedCrossover) ParentsCount() int {
 	return 2
 }
-func (crossover *PositionBasedCrossover) CanProduceCopiesOfParents(val bool) *PositionBasedCrossover {
+func (crossover *OrderBasedCrossover) CanProduceCopiesOfParents(val bool) *OrderBasedCrossover {
 	crossover.canProduceCopiesOfParents = val
 	return crossover
 }
 
-func (crossover *PositionBasedCrossover) Crossover(parents Chromosomes) Chromosomes {
+func (crossover *OrderBasedCrossover) Crossover(parents Chromosomes) Chromosomes {
 	if len(parents) != crossover.ParentsCount() {
 		panic("Incorrect parents count")
 	}
@@ -74,7 +75,7 @@ func (crossover *PositionBasedCrossover) Crossover(parents Chromosomes) Chromoso
 
 	return Chromosomes{c1, c2}
 }
-func (crossover *PositionBasedCrossover) generateMask(genesLen int) []int {
+func (crossover *OrderBasedCrossover) generateMask(genesLen int) []int {
 	mask := make([]int, 0, genesLen/2)
 	for i := 0; i < genesLen; i++ {
 		if rand.Intn(2) == 0 {
@@ -83,7 +84,7 @@ func (crossover *PositionBasedCrossover) generateMask(genesLen int) []int {
 	}
 	return mask
 }
-func (crossover *PositionBasedCrossover) crossover(p1, p2 *OrderedChromosome, mask []int) (c1, c2 ChromosomeInterface) {
+func (crossover *OrderBasedCrossover) crossover(p1, p2 *OrderedChromosome, mask []int) (c1, c2 ChromosomeInterface) {
 	p1genes := p1.OrderedGenes()
 	p2genes := p2.OrderedGenes()
 
@@ -100,33 +101,22 @@ func (crossover *PositionBasedCrossover) crossover(p1, p2 *OrderedChromosome, ma
 
 	return
 }
-func (crossover *PositionBasedCrossover) fillChild(c, p1, p2 OrderedGenes, mask []int) {
-	alreadyInChild := make(map[int]bool, len(mask))
-
+func (crossover *OrderBasedCrossover) fillChild(c, p1, p2 OrderedGenes, mask []int) {
+	inMask := make(map[int]bool, len(mask))
 	for i := 0; i < len(mask); i++ {
 		ind := mask[i]
-
-		c[ind] = p1[ind]
-		alreadyInChild[p1[ind]] = true
+		inMask[p1[ind]] = true
 	}
 
-	p2Ind := 0
+	maskInd := 0
 	for i := 0; i < len(c); i++ {
-		if c[i] != -1 {
-			continue
+		val := p2[i]
+		if inMask[val] {
+			c[i] = p1[mask[maskInd]]
+			maskInd++
+		} else {
+			c[i] = val
 		}
-
-		val := 0
-		for {
-			val = p2[p2Ind]
-			p2Ind++
-
-			if !alreadyInChild[val] {
-				break
-			}
-		}
-
-		c[i] = val
 	}
 
 	return
