@@ -7,5 +7,5 @@ type StopCriterionInterface interface {
 	Setup(StatisticsOptionsInterface)
 
 	// Method executes each time before iteration
-	ShouldStop(StatisticsInterface) bool
+	ShouldStop(StatisticsDataInterface) bool
 }

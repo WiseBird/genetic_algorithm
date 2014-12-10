@@ -5,9 +5,10 @@ type StatisticsAggregatorConstructor func(StatisticsOptionsInterface) Statistics
 
 // Accumulate statistics during optimization
 type StatisticsInterface interface {
-	// Optimizer will call this method before optimization
-	Start()
-	// Optimizer will call this method after optimization
+	// Method for duration tracking
+	// Call without parameters means that optimization is started
+	Start(keys ...string)
+	// Should be called when tracked operation is complete.
 	End()
 	// Optimizer will call this method on each generation
 	// First call would be with initial population
@@ -32,5 +33,6 @@ type StatisticsAggregatorInterface interface {
 	Compute() StatisticsDataInterface
 }
 type StatisticsAggregatorWithOptions interface {
+	StatisticsAggregatorInterface
 	Options() StatisticsOptionsInterface
 }

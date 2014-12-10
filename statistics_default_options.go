@@ -9,6 +9,7 @@ type StatisticsDefaultOptions struct {
 	trackWorstCost   bool
 	trackWorstCosts  bool
 	trackMinCostsVar bool
+	trackDurations bool
 }
 
 func NewStatisticsDefaultOptions() *StatisticsDefaultOptions {
@@ -43,6 +44,10 @@ func (options *StatisticsDefaultOptions) TrackMinCostsVar() *StatisticsDefaultOp
 	options.trackMinCostsVar = true
 	return options
 }
+func (options *StatisticsDefaultOptions) TrackDurations() *StatisticsDefaultOptions {
+	options.trackDurations = true
+	return options
+}
 
 func (options *StatisticsDefaultOptions) Ensure(other StatisticsOptionsInterface) {
 	opt, ok := other.(*StatisticsDefaultOptions)
@@ -71,6 +76,9 @@ func (options *StatisticsDefaultOptions) Ensure(other StatisticsOptionsInterface
 	if options.trackMinCostsVar {
 		opt.TrackMinCostsVar()
 	}
+	if options.trackDurations {
+		opt.TrackDurations()
+	}
 }
 func (options *StatisticsDefaultOptions) Copy() *StatisticsDefaultOptions {
 	return &StatisticsDefaultOptions{
@@ -81,5 +89,6 @@ func (options *StatisticsDefaultOptions) Copy() *StatisticsDefaultOptions {
 		options.trackWorstCost,
 		options.trackWorstCosts,
 		options.trackMinCostsVar,
+		options.trackDurations,
 	}
 }

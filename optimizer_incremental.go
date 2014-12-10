@@ -28,11 +28,17 @@ func (optimizer *IncrementalOptimizer) optimizeInner() {
 	optimizer.mutate()
 }
 func (optimizer *IncrementalOptimizer) weed() {
+	optimizer.statistics.Start("weed")
+	defer optimizer.statistics.End()
+
 	optimizer.population = optimizer.weeder.Weed(optimizer.population)
 
 	log.Tracef("Weeded population:\n%v\n", optimizer.population)
 }
 func (optimizer *IncrementalOptimizer) breed() {
+	optimizer.statistics.Start("breed")
+	defer optimizer.statistics.End()
+
 	newPopulation := optimizer.population
 
 	optimizer.selector.Prepare(optimizer.population)
@@ -56,6 +62,9 @@ func (optimizer *IncrementalOptimizer) breed() {
 	}
 }
 func (optimizer *IncrementalOptimizer) mutate() {
+	optimizer.statistics.Start("mutate")
+	defer optimizer.statistics.End()
+
 	optimizer.mutator.Mutate(optimizer.population)
 }
 

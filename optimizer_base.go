@@ -23,6 +23,7 @@ type OptimizerBase struct {
 	chromSize int
 
 	population Chromosomes
+	statistics StatisticsInterface
 }
 
 // MutatorBase's virtual methods
@@ -120,22 +121,19 @@ func (optimizer *OptimizerBase) Optimize() (ChromosomeInterface, StatisticsDataI
 	optimizer.check()
 	optimizer.stopCriterion.Setup(optimizer.statisticsOptions)
 
-	statistics := optimizer.statisticsConstructor(optimizer.statisticsOptions)
-	statistics.Start()
+	optimizer.statistics = optimizer.statisticsConstructor(optimizer.statisticsOptions)
+	optimizer.statistics.Start()
 
-	optimizer.population = optimizer.initializer.Init(optimizer.popSize, optimizer.chromSize)
-	if len(optimizer.population) == 0 {
-		panic("Init population is empty")
-	}
+	optimizer.initPopulation()
 
 	iter := 0
 	for {
 		log.Infof("GENERATION %d", iter)
 
 		optimizer.sort()
-		statistics.OnGeneration(optimizer.population)
+		optimizer.statistics.OnGeneration(optimizer.population)
 
-		if optimizer.stopCriterion.ShouldStop(statistics) {
+		if optimizer.stopCriterion.ShouldStop(optimizer.statistics.Data()) {
 			break
 		}
 
@@ -144,11 +142,23 @@ func (optimizer *OptimizerBase) Optimize() (ChromosomeInterface, StatisticsDataI
 		iter++
 	}
 
-	statistics.End()
+	optimizer.statistics.End()
 
-	return optimizer.population[0], statistics.Data()
+	return optimizer.population[0], optimizer.statistics.Data()
+}
+func (optimizer *OptimizerBase) initPopulation() {
+	optimizer.statistics.Start("init")
+	defer optimizer.statistics.End()
+
+	optimizer.population = optimizer.initializer.Init(optimizer.popSize, optimizer.chromSize)
+	if len(optimizer.population) == 0 {
+		panic("Init population is empty")
+	}
 }
 func (optimizer *OptimizerBase) sort() {
+	optimizer.statistics.Start("cost")
+	defer optimizer.statistics.End()
+
 	optimizer.population.SetCost(optimizer.costFunction)
 	sort.Sort(optimizer.population)
 

@@ -36,6 +36,9 @@ func (optimizer *SimpleOptimizer) optimizeInner() {
 	optimizer.mutate()
 }
 func (optimizer *SimpleOptimizer) breed() {
+	optimizer.statistics.Start("breed")
+	defer optimizer.statistics.End()
+
 	if optimizer.secondPopulation == nil {
 		optimizer.secondPopulation = make(Chromosomes, optimizer.elitism, optimizer.popSize)
 	} else {
@@ -70,6 +73,9 @@ func (optimizer *SimpleOptimizer) breed() {
 	}
 }
 func (optimizer *SimpleOptimizer) mutate() {
+	optimizer.statistics.Start("mutate")
+	defer optimizer.statistics.End()
+
 	optimizer.mutator.Mutate(optimizer.population)
 }
 

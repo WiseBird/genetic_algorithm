@@ -235,7 +235,7 @@ func (p *plotDataProvider) AddMinCostDataSet() *plotDataSet {
 	return p.AddDataSet("Min", func(sa StatisticsDataInterface) plotter.XYs {
 		sda, ok := sa.(StatisticsDataDefault)
 		if !ok {
-			panic("Expects StatisticsDefaultAggregator")
+			panic("Expects StatisticsDataDefault")
 		}
 
 		return CostsConverter(sda.MinCosts())
@@ -245,7 +245,7 @@ func (p *plotDataProvider) AddMeanCostDataSet() *plotDataSet {
 	return p.AddDataSet("Mean", func(sa StatisticsDataInterface) plotter.XYs {
 		sda, ok := sa.(StatisticsDataDefault)
 		if !ok {
-			panic("Expects StatisticsDefaultAggregator")
+			panic("Expects StatisticsDataDefault")
 		}
 
 		return CostsConverter(sda.MeanCosts())

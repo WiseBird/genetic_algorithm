@@ -1,16 +1,20 @@
 package genetic_algorithm
 
 import (
+	"bytes"
 	log "github.com/cihub/seelog"
 	"math"
 	"time"
+	"fmt"
 )
 
 type StatisticsDataDefault interface {
 	Generations() int
 	Duration() time.Duration
+	Durations() *HierarchicalDuration
 	MinCost() float64
 	MinCosts() []float64
+	GenerationsWithoutImprovements() int
 	MinCostsVar() float64
 	MeanCost() float64
 	MeanCosts() []float64
@@ -21,8 +25,8 @@ type StatisticsDataDefault interface {
 // Default realization of StatisticsInterface
 type StatisticsDefault struct {
 	started   bool
-	startTime time.Time
-	elapsed   time.Duration
+	durationTracker *durationTracker
+	durationTrackerStack [][]string
 
 	generations int
 
@@ -54,25 +58,56 @@ func NewStatisticsDefault(options StatisticsOptionsInterface) StatisticsInterfac
 
 	return statistics
 }
-func (statistics *StatisticsDefault) Start() {
+func (statistics *StatisticsDefault) Start(keys ...string) {
+	if !statistics.options.trackDurations {
+		return
+	}
+
+	if statistics.durationTracker == nil {
+		statistics.durationTracker = newDurationTracker()
+		statistics.durationTrackerStack = make([][]string, 0)
+	}
+
 	statistics.started = true
-	statistics.startTime = time.Now()
+
+	if len(keys) != 0 {
+		statistics.durationTrackerStack = append(statistics.durationTrackerStack, keys)
+	}
+
+	tracker := statistics.durationTracker
+	for _, key := range keys {
+		tracker = tracker.child(key)
+	}
+	tracker.start()
 }
 func (statistics *StatisticsDefault) End() {
+	if !statistics.options.trackDurations {
+		return
+	}
+
 	if !statistics.started {
 		return
 	}
 
-	statistics.started = false
-	statistics.elapsed = time.Since(statistics.startTime)
+	stackLen := len(statistics.durationTrackerStack)
+	if stackLen == 0 {
+		statistics.started = false
+		statistics.durationTracker.end()
+		return
+	}
+
+	keys := statistics.durationTrackerStack[stackLen-1]
+	statistics.durationTrackerStack = statistics.durationTrackerStack[:stackLen-1]
+
+	tracker := statistics.durationTracker
+	for _, key := range keys {
+		tracker = tracker.child(key)
+	}
+	tracker.end()
 }
 
 // Expects sorted population
 func (statistics *StatisticsDefault) OnGeneration(population Chromosomes) {
-	if !statistics.started {
-		panic("Statistics should be start first")
-	}
-
 	statistics.generations++
 
 	if len(population) == 0 {
@@ -135,14 +170,22 @@ func (statistics *StatisticsDefault) Generations() int {
 	return statistics.generations
 }
 
-// Returns time elapsed from start to end.
+// Returns duration of optimization.
 // If optimization are in progress then returns time elapsed from start.
 func (statistics *StatisticsDefault) Duration() time.Duration {
-	if !statistics.started {
-		return statistics.elapsed
+	if !statistics.options.trackDurations {
+		return time.Duration(0)
 	}
 
-	return time.Since(statistics.startTime)
+	if !statistics.started {
+		return statistics.durationTracker.elapsed[0]
+	}
+
+	return time.Since(statistics.durationTracker.startTime)
+}
+// Returns entire tracked hierarchy of duration
+func (statistics *StatisticsDefault) Durations() *HierarchicalDuration {
+	return statistics.durationTracker.toHierarchy()
 }
 
 // Min cost for last iteration
@@ -191,4 +234,106 @@ func (statistics *StatisticsDefault) WorstCosts() []float64 {
 
 func (statistics *StatisticsDefault) Data() StatisticsDataInterface {
 	return statistics
+}
+
+
+type durationTracker struct {
+	startTime time.Time
+	elapsed   []time.Duration
+
+	children map[string]*durationTracker
+}
+func newDurationTracker() *durationTracker {
+	tracker := new(durationTracker)
+
+	return tracker
+}
+func (tracker *durationTracker) start() {
+	tracker.startTime = time.Now()
+}
+func (tracker *durationTracker) end() {
+	if tracker.elapsed == nil {
+		tracker.elapsed = make([]time.Duration, 0, 1)
+	}
+
+	tracker.elapsed = append(tracker.elapsed, time.Since(tracker.startTime))
+}
+func (tracker *durationTracker) child(name string) *durationTracker {
+	if tracker.children == nil {
+		tracker.children = make(map[string]*durationTracker, 1)
+	}
+
+	child, ok := tracker.children[name]
+	if !ok {
+		child = newDurationTracker()
+		tracker.children[name] = child
+	}
+
+	return child
+}
+func (tracker *durationTracker) toHierarchy() *HierarchicalDuration {
+	return tracker.toNamedHierarchy("total")
+}
+func (tracker *durationTracker) toNamedHierarchy(name string) *HierarchicalDuration {
+	hierarchy := newHierarchicalDuration(name)
+
+	for _, elapsed := range tracker.elapsed {
+		hierarchy.add(elapsed)
+	}
+
+	for childName, child := range tracker.children {
+		hierarchy.addChild(child.toNamedHierarchy(childName))
+	}
+
+	return hierarchy
+}
+
+type HierarchicalDuration struct {
+	Name string
+	Duration time.Duration
+	Calls int
+
+	Children []*HierarchicalDuration
+}
+func newHierarchicalDuration(name string) *HierarchicalDuration {
+	hierarchy := new(HierarchicalDuration)
+
+	hierarchy.Name = name
+
+	return hierarchy
+}
+func (hierarchy *HierarchicalDuration) add(duration time.Duration) {
+	hierarchy.Calls++
+	hierarchy.Duration += duration
+}
+func (hierarchy *HierarchicalDuration) addChild(child *HierarchicalDuration) {
+	if hierarchy.Children == nil {
+		hierarchy.Children = make([]*HierarchicalDuration, 0, 1)
+	}
+
+	hierarchy.Children = append(hierarchy.Children, child)
+}
+func (hierarchy *HierarchicalDuration) String() string {
+	var buffer bytes.Buffer
+
+	hierarchy.string(0, &buffer)
+
+	return buffer.String()
+}
+func (hierarchy *HierarchicalDuration) string(indent int, buffer *bytes.Buffer) {
+	for i := 0; i < indent; i++ {
+		buffer.WriteString("\t")
+	}
+
+	var oneIterDuration time.Duration
+	if hierarchy.Calls != 0 {
+		oneIterDuration = hierarchy.Duration / time.Duration(hierarchy.Calls)
+	}
+
+	buffer.WriteString(fmt.Sprintf("%s: %v [%d x %v]\n", 
+		hierarchy.Name, hierarchy.Duration, hierarchy.Calls, oneIterDuration))
+
+	for _, child := range hierarchy.Children {
+		child.string(indent+1, buffer)
+	}
 }

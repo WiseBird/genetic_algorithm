@@ -70,8 +70,8 @@ func (criterion *StopCriterionDefault) Setup(opts StatisticsOptionsInterface) {
 	}
 }
 
-func (criterion *StopCriterionDefault) ShouldStop(statistics StatisticsInterface) bool {
-	stats, ok := statistics.(*StatisticsDefault)
+func (criterion *StopCriterionDefault) ShouldStop(statistics StatisticsDataInterface) bool {
+	stats, ok := statistics.(StatisticsDataDefault)
 	if !ok {
 		panic("Method expects StatisticsDefault")
 	}

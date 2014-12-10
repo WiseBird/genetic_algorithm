@@ -13,6 +13,7 @@ type StatisticsDefaultAggregator struct {
 	generations int
 
 	minCost     float64
+	gensWoImprv          int
 	minCosts    []float64
 	minCostsVar float64
 
@@ -51,7 +52,7 @@ func (aggregator *StatisticsDefaultAggregator) Compute() StatisticsDataInterface
 
 	aggregator.duration = time.Duration(
 		meanInt64Iter(count, func(i int) int64 {
-			return int64(aggregator.statistics[i].elapsed)
+			return int64(aggregator.statistics[i].Duration())
 		}))
 	aggregator.generations = int(
 		meanInt64Iter(count, func(i int) int64 {
@@ -68,6 +69,12 @@ func (aggregator *StatisticsDefaultAggregator) Compute() StatisticsDataInterface
 			meanFloat64ArrIter(count, func(i int) []float64 {
 				return aggregator.statistics[i].minCosts
 			})
+	}
+	if aggregator.options.trackGensWoImprv {
+		aggregator.gensWoImprv = int(
+		meanInt64Iter(count, func(i int) int64 {
+			return int64(aggregator.statistics[i].gensWoImprv)
+		}))
 	}
 	if aggregator.options.trackMinCostsVar {
 		aggregator.minCostsVar =
@@ -113,6 +120,9 @@ func (aggregator *StatisticsDefaultAggregator) Duration() time.Duration {
 }
 func (aggregator *StatisticsDefaultAggregator) MinCost() float64 {
 	return aggregator.minCost
+}
+func (aggregator *StatisticsDefaultAggregator) GenerationsWithoutImprovements() int {
+	return aggregator.gensWoImprv
 }
 func (aggregator *StatisticsDefaultAggregator) MinCosts() []float64 {
 	return aggregator.minCosts
