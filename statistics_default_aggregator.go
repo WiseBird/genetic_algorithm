@@ -9,6 +9,7 @@ type StatisticsDefaultAggregator struct {
 	statistics []*StatisticsDefault
 
 	duration time.Duration
+	durations *HierarchicalDuration
 
 	generations int
 
@@ -50,10 +51,6 @@ func (aggregator *StatisticsDefaultAggregator) Aggregate(statistics StatisticsDa
 func (aggregator *StatisticsDefaultAggregator) Compute() StatisticsDataInterface {
 	count := len(aggregator.statistics)
 
-	aggregator.duration = time.Duration(
-		meanInt64Iter(count, func(i int) int64 {
-			return int64(aggregator.statistics[i].Duration())
-		}))
 	aggregator.generations = int(
 		meanInt64Iter(count, func(i int) int64 {
 			return int64(aggregator.statistics[i].generations)
@@ -63,6 +60,15 @@ func (aggregator *StatisticsDefaultAggregator) Compute() StatisticsDataInterface
 		meanFloat64Iter(count, func(i int) float64 {
 			return aggregator.statistics[i].minCost
 		})
+
+	if aggregator.options.trackDurations {
+		aggregator.duration = time.Duration(
+			meanInt64Iter(count, func(i int) int64 {
+				return int64(aggregator.statistics[i].Duration())
+			}))
+
+		aggregator.durations = aggregator.computeDurations([]string{})
+	}
 
 	if aggregator.options.trackMinCosts {
 		aggregator.minCosts =
@@ -111,12 +117,56 @@ func (aggregator *StatisticsDefaultAggregator) Compute() StatisticsDataInterface
 
 	return aggregator
 }
+func (aggregator *StatisticsDefaultAggregator) computeDurations(keys []string) *HierarchicalDuration {
+	count := len(aggregator.statistics)
+
+	hierarchyName := "total"
+	if len(keys) != 0 {
+		hierarchyName = keys[len(keys)-1]
+	}
+	hierarchy := newHierarchicalDuration(hierarchyName)
+
+	hierarchy.Duration = time.Duration(
+		meanInt64Iter(count, func(i int) int64 {
+			return int64(aggregator.getHierarchy(i, keys).Duration)
+		}))
+	hierarchy.Calls = int(
+		meanInt64Iter(count, func(i int) int64 {
+			return int64(aggregator.getHierarchy(i, keys).Calls)
+		}))
+
+	firstHierarchy := aggregator.getHierarchy(0, keys)
+	for childName, _ := range firstHierarchy.Children {
+		keys = append(keys, childName)
+		hierarchy.addChild(aggregator.computeDurations(keys))
+		keys = keys[:len(keys)-1]
+	}
+
+	return hierarchy
+}
+func (aggregator *StatisticsDefaultAggregator) getHierarchy(i int, keys []string) *HierarchicalDuration {
+	h := aggregator.statistics[i].Durations()
+	for _, key := range keys {
+		var ok bool
+		h, ok = h.Children[key]
+		if !ok {
+			panic("Inconsistent durations hierarchies. Missing key: " + key)
+		}
+	}
+	return h
+}
 
 func (aggregator *StatisticsDefaultAggregator) Generations() int {
 	return aggregator.generations
 }
 func (aggregator *StatisticsDefaultAggregator) Duration() time.Duration {
-	return aggregator.duration
+	if aggregator.durations == nil {
+		return time.Duration(0)
+	}
+	return aggregator.durations.Duration
+}
+func (aggregator *StatisticsDefaultAggregator) Durations() *HierarchicalDuration {
+	return aggregator.durations
 }
 func (aggregator *StatisticsDefaultAggregator) MinCost() float64 {
 	return aggregator.minCost

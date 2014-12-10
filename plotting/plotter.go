@@ -47,17 +47,17 @@ type canvas interface {
 }
 
 type Plotter struct {
-	plots []*plot
+	plots []*Plot
 }
 
 func NewPlotter() *Plotter {
 	plotter := new(Plotter)
 
-	plotter.plots = make([]*plot, 0, 1)
+	plotter.plots = make([]*Plot, 0, 1)
 
 	return plotter
 }
-func (plotter *Plotter) AddPlot(title string) *plot {
+func (plotter *Plotter) AddPlot(title string) *Plot {
 	plot := newPlot(plotter, title)
 	plotter.plots = append(plotter.plots, plot)
 
@@ -150,15 +150,15 @@ func (plotter *Plotter) saveFile(c canvas, fileName string) (err error) {
 	return f.Close()
 }
 
-type plot struct {
+type Plot struct {
 	plotter *Plotter
 
 	plot      *pplot.Plot
 	providers []*plotDataProvider
 }
 
-func newPlot(plotter *Plotter, title string) *plot {
-	p := new(plot)
+func newPlot(plotter *Plotter, title string) *Plot {
+	p := new(Plot)
 
 	p.plotter = plotter
 	p.providers = make([]*plotDataProvider, 0, 1)
@@ -176,39 +176,39 @@ func newPlot(plotter *Plotter, title string) *plot {
 
 	return p
 }
-func (p *plot) Title(title string) *plot {
+func (p *Plot) Title(title string) *Plot {
 	p.plot.Title.Text = title
 	return p
 }
-func (p *plot) XLabel(label string) *plot {
+func (p *Plot) XLabel(label string) *Plot {
 	p.plot.X.Label.Text = label
 	return p
 }
-func (p *plot) YLabel(label string) *plot {
+func (p *Plot) YLabel(label string) *Plot {
 	p.plot.Y.Label.Text = label
 	return p
 }
-func (p *plot) AddDataProvider(optimizer OptimizerInterface) *plotDataProvider {
+func (p *Plot) AddDataProvider(optimizer OptimizerInterface) *plotDataProvider {
 	plotDataProvider := newPlotDataProvider(p, optimizer, nil)
 	p.providers = append(p.providers, plotDataProvider)
 
 	return plotDataProvider
 }
-func (p *plot) AddData(data StatisticsDataInterface) *plotDataProvider {
+func (p *Plot) AddData(data StatisticsDataInterface) *plotDataProvider {
 	plotDataProvider := newPlotDataProvider(p, nil, data)
 	p.providers = append(p.providers, plotDataProvider)
 
 	return plotDataProvider
 }
-func (p *plot) Done() *Plotter {
+func (p *Plot) Done() *Plotter {
 	return p.plotter
 }
-func (p *plot) InnerPlot(title string) *pplot.Plot {
+func (p *Plot) InnerPlot(title string) *pplot.Plot {
 	return p.plot
 }
 
 type plotDataProvider struct {
-	plot *plot
+	plot *Plot
 
 	optimizer      OptimizerInterface
 	statisticsData StatisticsDataInterface
@@ -216,7 +216,7 @@ type plotDataProvider struct {
 	dataSets []*plotDataSet
 }
 
-func newPlotDataProvider(plot *plot, optimizer OptimizerInterface, statisticsData StatisticsDataInterface) *plotDataProvider {
+func newPlotDataProvider(plot *Plot, optimizer OptimizerInterface, statisticsData StatisticsDataInterface) *plotDataProvider {
 	provider := new(plotDataProvider)
 
 	provider.plot = plot
@@ -257,7 +257,7 @@ func (p *plotDataProvider) Data() StatisticsDataInterface {
 	}
 	return p.statisticsData
 }
-func (p *plotDataProvider) Done() *plot {
+func (p *plotDataProvider) Done() *Plot {
 	return p.plot
 }
 

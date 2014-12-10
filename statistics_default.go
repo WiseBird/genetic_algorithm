@@ -27,6 +27,7 @@ type StatisticsDefault struct {
 	started   bool
 	durationTracker *durationTracker
 	durationTrackerStack [][]string
+	hierarchy *HierarchicalDuration
 
 	generations int
 
@@ -69,6 +70,7 @@ func (statistics *StatisticsDefault) Start(keys ...string) {
 	}
 
 	statistics.started = true
+	statistics.hierarchy = nil
 
 	if len(keys) != 0 {
 		statistics.durationTrackerStack = append(statistics.durationTrackerStack, keys)
@@ -185,7 +187,11 @@ func (statistics *StatisticsDefault) Duration() time.Duration {
 }
 // Returns entire tracked hierarchy of duration
 func (statistics *StatisticsDefault) Durations() *HierarchicalDuration {
-	return statistics.durationTracker.toHierarchy()
+	if statistics.hierarchy == nil {
+		statistics.hierarchy = statistics.durationTracker.toHierarchy()
+	}
+
+	return statistics.hierarchy
 }
 
 // Min cost for last iteration
@@ -293,7 +299,7 @@ type HierarchicalDuration struct {
 	Duration time.Duration
 	Calls int
 
-	Children []*HierarchicalDuration
+	Children map[string]*HierarchicalDuration
 }
 func newHierarchicalDuration(name string) *HierarchicalDuration {
 	hierarchy := new(HierarchicalDuration)
@@ -308,10 +314,10 @@ func (hierarchy *HierarchicalDuration) add(duration time.Duration) {
 }
 func (hierarchy *HierarchicalDuration) addChild(child *HierarchicalDuration) {
 	if hierarchy.Children == nil {
-		hierarchy.Children = make([]*HierarchicalDuration, 0, 1)
+		hierarchy.Children = make(map[string]*HierarchicalDuration, 1)
 	}
 
-	hierarchy.Children = append(hierarchy.Children, child)
+	hierarchy.Children[child.Name] = child
 }
 func (hierarchy *HierarchicalDuration) String() string {
 	var buffer bytes.Buffer
@@ -325,13 +331,14 @@ func (hierarchy *HierarchicalDuration) string(indent int, buffer *bytes.Buffer) 
 		buffer.WriteString("\t")
 	}
 
-	var oneIterDuration time.Duration
-	if hierarchy.Calls != 0 {
-		oneIterDuration = hierarchy.Duration / time.Duration(hierarchy.Calls)
+	buffer.WriteString(fmt.Sprintf("%s: %v", hierarchy.Name, hierarchy.Duration))
+
+	if hierarchy.Calls != 0 && hierarchy.Calls != 1 {
+		buffer.WriteString(fmt.Sprintf(" [%d x %v]", 
+			hierarchy.Calls, hierarchy.Duration / time.Duration(hierarchy.Calls)))
 	}
 
-	buffer.WriteString(fmt.Sprintf("%s: %v [%d x %v]\n", 
-		hierarchy.Name, hierarchy.Duration, hierarchy.Calls, oneIterDuration))
+	buffer.WriteString("\n")
 
 	for _, child := range hierarchy.Children {
 		child.string(indent+1, buffer)
