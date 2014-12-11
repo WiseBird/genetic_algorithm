@@ -38,34 +38,34 @@ func (s *MutatorSuite) TestMutatorGenesBase_Elitism(c *C) {
 	c.Assert(pop[2].Genes(), DeepEquals, falseGenes)
 }
 
-func (s *MutatorSuite) TestMutatorInvert_getIntervalLen(c *C) {
-	var mutator *InvertMutator
+func (s *MutatorSuite) TestMutatorIntervalBase_getIntervalLen(c *C) {
+	var mutator *MutatorIntervalBase
 
-	mutator = NewInvertExactMutator(1, nil, 5)
+	mutator = NewMutatorIntervalBase(nil, 1, nil).ExactInterval(5, 5)
 	c.Assert(mutator.getIntervalLen(10), Equals, 5)
 
 	fromExact := 5
 	toExact := 7
-	mutator = NewInvertExactIntervalMutator(1, nil, fromExact, toExact)
+	mutator = NewMutatorIntervalBase(nil, 1, nil).ExactInterval(fromExact, toExact)
 	res := mutator.getIntervalLen(10)
 	if res < fromExact || res > toExact {
 		c.Fatalf("Unexpected interval len. Exp: [%d:%d]. Got: [%d]", fromExact, toExact, res)
 	}
 
-	mutator = NewInvertPercentageMutator(1, nil, .5)
+	mutator = NewMutatorIntervalBase(nil, 1, nil).PercentageInterval(.5, .5)
 	c.Assert(mutator.getIntervalLen(10), Equals, 5)
 
 	fromPercentage := .5
 	toPercentage := .7
 	genesLen := 10
-	mutator = NewInvertPercentageIntervalMutator(1, nil, fromPercentage, toPercentage)
+	mutator = NewMutatorIntervalBase(nil, 1, nil).PercentageInterval(fromPercentage, toPercentage)
 	resf := float64(mutator.getIntervalLen(genesLen))
 	if resf < fromPercentage*float64(genesLen) || resf > toPercentage*float64(genesLen) {
 		c.Fatalf("Unexpected interval len. Exp: [%f:%f]. Got: [%f]", fromPercentage*float64(genesLen), toPercentage*float64(genesLen), resf)
 	}
 }
-func (s *MutatorSuite) TestMutatorInvert_getInterval(c *C) {
-	mutator := &InvertMutator{}
+func (s *MutatorSuite) TestMutatorIntervalBase_getInterval(c *C) {
+	mutator := &MutatorIntervalBase{}
 
 	from, to := mutator.getInterval(1, 1)
 	c.Assert(from, Equals, 0)
@@ -79,12 +79,45 @@ func (s *MutatorSuite) TestMutatorInvert_getInterval(c *C) {
 	from, to = mutator.getInterval(10, intervalLen)
 	c.Assert(to-from, Equals, intervalLen)
 }
-func (s *MutatorSuite) TestMutatorInvert_mutate(c *C) {
+
+func (s *MutatorSuite) TestInvertMutator_mutate(c *C) {
 	beforeGenes := OrderedGenes{1, 2, 3, 4, 5, 6}
 	afterGenes := OrderedGenes{1, 2, 5, 4, 3, 6}
 
-	mutator := newInvertMutator(1, NewEmptyOrderedChromosome)
-	mutator.mutate(beforeGenes, 2, 5)
+	mutator := NewInvertMutator(1, NewEmptyOrderedChromosome)
+	mutator.MutateGenes(beforeGenes, 2, 5)
 
 	c.Assert(beforeGenes, DeepEquals, afterGenes)
+}
+
+func (s *MutatorSuite) TestDisplacementMutator_insert(c *C) {
+	beforeGenes := OrderedGenes{1, 2, 3, 4, 5, 6}
+	genes := make(OrderedGenes, len(beforeGenes))
+	mutator := NewDisplacementMutator(1, NewEmptyOrderedChromosome)
+
+	genes.Copy(beforeGenes, 0, 0, len(beforeGenes))
+	mutator.insert(genes, 2, 5, 0)
+	c.Assert(genes, DeepEquals, OrderedGenes{3, 4, 5, 1, 2, 6})
+
+	genes.Copy(beforeGenes, 0, 0, len(beforeGenes))
+	mutator.insert(genes, 2, 5, 1)
+	c.Assert(genes, DeepEquals, OrderedGenes{1, 3, 4, 5, 2, 6})
+
+	genes.Copy(beforeGenes, 0, 0, len(beforeGenes))
+	mutator.insert(genes, 2, 5, 6)
+	c.Assert(genes, DeepEquals, OrderedGenes{1, 2, 6, 3, 4, 5})
+}
+func (s *MutatorSuite) TestDisplacementMutator_chooseInsertPoint(c *C) {
+	mutator := NewDisplacementMutator(1, NewEmptyOrderedChromosome)
+
+	point := mutator.chooseInsertPoint(2, 0, 1)
+	c.Assert(point, Equals, 2)
+
+	point = mutator.chooseInsertPoint(2, 1, 2)
+	c.Assert(point, Equals, 0)
+
+	point = mutator.chooseInsertPoint(6, 2, 5)
+	if point != 0 && point != 1 && point != 6 {
+		c.Fatalf("Unexpected insert point. Exp: [0|1|6]. Got: [%d]", point)
+	}
 }
