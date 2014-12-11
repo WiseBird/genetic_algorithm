@@ -64,7 +64,7 @@ func createOptimizer() OptimizerInterface {
 		Initializer(NewOrderedRandomInitializer()).
 		Selector(NewRouletteWheelRankWeightingSelector()).
 		Crossover(NewOrderCrossoverVer1()).
-		Mutator(NewOrderedSwapMutator(mutationProb)).
+		Mutator(NewSwapMutator(mutationProb)).
 		CostFunction(Cost).
 		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).

@@ -1,6 +1,7 @@
 package genetic_algorithm
 
 import (
+	"fmt"
 	log "github.com/cihub/seelog"
 	"math"
 	"math/rand"
@@ -13,24 +14,28 @@ const (
 	MutatorExactCountType = 1
 )
 
-// Base class for mutators
-type MutatorBase struct {
-	MutatorBaseVirtualMInterface
+// Base class for mutators that mutate separate genes
+type MutatorGeneBase struct {
+	MutatorGeneBaseVirtualMInterface
 
 	probability float64
 	elitism     int
 	kind        int
 }
 
-// MutatorBase's virtual methods
-type MutatorBaseVirtualMInterface interface {
+// MutatorGeneBase's virtual methods
+type MutatorGeneBaseVirtualMInterface interface {
 	MutateCromosome(chrom ChromosomeInterface, ind int)
 }
 
-func NewMutator(virtual MutatorBaseVirtualMInterface, probability float64) *MutatorBase {
-	mutator := new(MutatorBase)
+func NewGeneBaseMutator(virtual MutatorGeneBaseVirtualMInterface, probability float64) *MutatorGeneBase {
+	if probability > 1 || probability < 0 {
+		panic(fmt.Sprintf("Incorrect probability %v", probability))
+	}
 
-	mutator.MutatorBaseVirtualMInterface = virtual
+	mutator := new(MutatorGeneBase)
+
+	mutator.MutatorGeneBaseVirtualMInterface = virtual
 	mutator.probability = probability
 	mutator.elitism = 1
 	mutator.kind = MutatorOneByOneType
@@ -39,19 +44,19 @@ func NewMutator(virtual MutatorBaseVirtualMInterface, probability float64) *Muta
 }
 
 // Will roll for every element in chromosome, mutate it if success
-func (mutator *MutatorBase) OneByOne() *MutatorBase {
+func (mutator *MutatorGeneBase) OneByOne() *MutatorGeneBase {
 	mutator.kind = MutatorOneByOneType
 	return mutator
 }
 
 // Will mutete exactly (Npop * Nel * P) elements
-func (mutator *MutatorBase) ExactCount() *MutatorBase {
+func (mutator *MutatorGeneBase) ExactCount() *MutatorGeneBase {
 	mutator.kind = MutatorExactCountType
 	return mutator
 }
 
 // The best chromosome[s] can't be mutated
-func (mutator *MutatorBase) WithElitism(count int) *MutatorBase {
+func (mutator *MutatorGeneBase) WithElitism(count int) *MutatorGeneBase {
 	if count < 0 {
 		panic("Elitism can't be negative")
 	}
@@ -61,12 +66,12 @@ func (mutator *MutatorBase) WithElitism(count int) *MutatorBase {
 }
 
 // All chromosomes can be mutated
-func (mutator *MutatorBase) WithoutElitism() *MutatorBase {
+func (mutator *MutatorGeneBase) WithoutElitism() *MutatorGeneBase {
 	mutator.elitism = 0
 	return mutator
 }
 
-func (mutator *MutatorBase) Mutate(population Chromosomes) {
+func (mutator *MutatorGeneBase) Mutate(population Chromosomes) {
 	switch mutator.kind {
 	case MutatorOneByOneType:
 		mutator.mutateOneByOne(population)
@@ -74,7 +79,7 @@ func (mutator *MutatorBase) Mutate(population Chromosomes) {
 		mutator.mutateExactCount(population)
 	}
 }
-func (mutator *MutatorBase) mutateOneByOne(population Chromosomes) {
+func (mutator *MutatorGeneBase) mutateOneByOne(population Chromosomes) {
 	m := 0
 	for ind, chrom := range population {
 		if mutator.elitism > ind {
@@ -94,7 +99,7 @@ func (mutator *MutatorBase) mutateOneByOne(population Chromosomes) {
 
 	log.Debugf("Elems mutated: %d", m)
 }
-func (mutator *MutatorBase) mutateExactCount(population Chromosomes) {
+func (mutator *MutatorGeneBase) mutateExactCount(population Chromosomes) {
 	popLen := len(population)
 	if popLen == 0 {
 		return

@@ -5,8 +5,9 @@ package genetic_algorithm
 type BinaryMutator struct {
 }
 
-func NewBinaryMutator(probability float64) *MutatorBase {
-	mutator := NewMutator(new(BinaryMutator), probability)
+// Probability is applied to each element separately.
+func NewBinaryMutator(probability float64) *MutatorGeneBase {
+	mutator := NewGeneBaseMutator(new(BinaryMutator), probability)
 
 	return mutator
 }

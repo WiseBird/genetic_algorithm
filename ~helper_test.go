@@ -67,6 +67,11 @@ func (s *HelperSuite) Test_chooseDifferentRandomNumbers(c *C) {
 	c.Assert(numbers, DeepEquals, []int{0, 1, 2})
 }
 
+func (s *HelperSuite) Test_round(c *C) {
+	c.Assert(round(1.49), Equals, 1)
+	c.Assert(round(1.51), Equals, 2)
+}
+
 //Within Delta Custom Checker
 type withinChecker struct {
 	*CheckerInfo

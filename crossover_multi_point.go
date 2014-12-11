@@ -97,16 +97,10 @@ func (crossover *MultiPointCrossover) crossover(p1, p2 ChromosomeInterface, cros
 	genesLen := p1.Genes().Len()
 
 	c1 = crossover.chromConstr(genesLen)
-	c1genes, ok := c1.Genes().(CopyableGenesInterface)
-	if !ok {
-		panic("Chromosome's genes does not implement CopyableGenesInterface")
-	}
+	c1genes := c1.Genes()
 
 	c2 = crossover.chromConstr(genesLen)
-	c2genes, ok := c2.Genes().(CopyableGenesInterface)
-	if !ok {
-		panic("Chromosome's genes does not implement CopyableGenesInterface")
-	}
+	c2genes := c2.Genes()
 
 	crossPoint := 0
 	for i := 0; i < len(crossPoints); i++ {

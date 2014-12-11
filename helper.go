@@ -154,3 +154,22 @@ func chooseDifferentRandomNumbers(count, upperBound int) []int {
 
 	return numbersList
 }
+
+func round(val float64) int {
+	return int(roundEx(val, .5, 0))
+}
+func roundEx(val float64, roundOn float64, places int) (newVal float64) {
+	var round float64
+	pow := math.Pow(10, float64(places))
+	digit := pow * val
+	_, div := math.Modf(digit)
+	_div := math.Copysign(div, val)
+	_roundOn := math.Copysign(roundOn, val)
+	if _div >= _roundOn {
+		round = math.Ceil(digit)
+	} else {
+		round = math.Floor(digit)
+	}
+	newVal = round / pow
+	return
+}

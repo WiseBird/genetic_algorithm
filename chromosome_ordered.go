@@ -8,16 +8,18 @@ import (
 
 type OrderedGenes []int
 
-func (g OrderedGenes) Len() int { return len(g) }
-
-/*func (g OrderedGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
+func (g OrderedGenes) Len() int                   { return len(g) }
+func (g OrderedGenes) Swap(i, j int)              { g[i], g[j] = g[j], g[i] }
+func (g OrderedGenes) Get(i int) interface{}      { return g[i] }
+func (g OrderedGenes) Set(i int, val interface{}) { g[i] = val.(int) }
+func (g OrderedGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
 	bgenes, ok := genes.(OrderedGenes)
 	if !ok {
 		panic("Unexpected genes. Expected OrderedGenes")
 	}
 
 	return copy(g[from1:], bgenes[from2:to2])
-}*/
+}
 func (g OrderedGenes) Ind(val int) int {
 	for i := 0; i < len(g); i++ {
 		if g[i] == val {

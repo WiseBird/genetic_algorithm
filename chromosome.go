@@ -52,7 +52,8 @@ func (c Chromosomes) String() string {
 
 type GenesInterface interface {
 	Len() int
-}
-type CopyableGenesInterface interface {
 	Copy(genes GenesInterface, from1, from2, to2 int) int
+	Swap(int, int)
+	Get(int) interface{}
+	Set(int, interface{})
 }

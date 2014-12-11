@@ -7,7 +7,10 @@ import (
 
 type BinaryGenes []bool
 
-func (g BinaryGenes) Len() int { return len(g) }
+func (g BinaryGenes) Len() int                   { return len(g) }
+func (g BinaryGenes) Swap(i, j int)              { g[i], g[j] = g[j], g[i] }
+func (g BinaryGenes) Get(i int) interface{}      { return g[i] }
+func (g BinaryGenes) Set(i int, val interface{}) { g[i] = val.(bool) }
 func (g BinaryGenes) Copy(genes GenesInterface, from1, from2, to2 int) int {
 	bgenes, ok := genes.(BinaryGenes)
 	if !ok {

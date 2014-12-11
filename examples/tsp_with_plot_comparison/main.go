@@ -97,7 +97,7 @@ func createOptimizer(ver int) OptimizerInterface {
 		Weeder(NewSimpleWeeder(weedRate)).
 		Initializer(NewOrderedRandomInitializer()).
 		Selector(NewRouletteWheelRankWeightingSelector()).
-		Mutator(NewOrderedSwapMutator(mutationProb)).
+		Mutator(NewSwapMutator(mutationProb)).
 		CostFunction(tsp.Cost).
 		StopCriterion(NewStopCriterionDefault().
 			Max_Generations(generations).
