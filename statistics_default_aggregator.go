@@ -8,13 +8,13 @@ type StatisticsDefaultAggregator struct {
 	options    *StatisticsDefaultOptions
 	statistics []*StatisticsDefault
 
-	duration time.Duration
+	duration  time.Duration
 	durations *HierarchicalDuration
 
 	generations int
 
 	minCost     float64
-	gensWoImprv          int
+	gensWoImprv int
 	minCosts    []float64
 	minCostsVar float64
 
@@ -78,9 +78,9 @@ func (aggregator *StatisticsDefaultAggregator) Compute() StatisticsDataInterface
 	}
 	if aggregator.options.trackGensWoImprv {
 		aggregator.gensWoImprv = int(
-		meanInt64Iter(count, func(i int) int64 {
-			return int64(aggregator.statistics[i].gensWoImprv)
-		}))
+			meanInt64Iter(count, func(i int) int64 {
+				return int64(aggregator.statistics[i].gensWoImprv)
+			}))
 	}
 	if aggregator.options.trackMinCostsVar {
 		aggregator.minCostsVar =

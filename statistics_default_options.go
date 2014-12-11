@@ -9,7 +9,7 @@ type StatisticsDefaultOptions struct {
 	trackWorstCost   bool
 	trackWorstCosts  bool
 	trackMinCostsVar bool
-	trackDurations bool
+	trackDurations   bool
 }
 
 func NewStatisticsDefaultOptions() *StatisticsDefaultOptions {

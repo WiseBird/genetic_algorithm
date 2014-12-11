@@ -2,10 +2,10 @@ package genetic_algorithm
 
 import (
 	"bytes"
+	"fmt"
 	log "github.com/cihub/seelog"
 	"math"
 	"time"
-	"fmt"
 )
 
 type StatisticsDataDefault interface {
@@ -24,10 +24,10 @@ type StatisticsDataDefault interface {
 
 // Default realization of StatisticsInterface
 type StatisticsDefault struct {
-	started   bool
-	durationTracker *durationTracker
+	started              bool
+	durationTracker      *durationTracker
 	durationTrackerStack [][]string
-	hierarchy *HierarchicalDuration
+	hierarchy            *HierarchicalDuration
 
 	generations int
 
@@ -185,6 +185,7 @@ func (statistics *StatisticsDefault) Duration() time.Duration {
 
 	return time.Since(statistics.durationTracker.startTime)
 }
+
 // Returns entire tracked hierarchy of duration
 func (statistics *StatisticsDefault) Durations() *HierarchicalDuration {
 	if statistics.hierarchy == nil {
@@ -242,13 +243,13 @@ func (statistics *StatisticsDefault) Data() StatisticsDataInterface {
 	return statistics
 }
 
-
 type durationTracker struct {
 	startTime time.Time
 	elapsed   []time.Duration
 
 	children map[string]*durationTracker
 }
+
 func newDurationTracker() *durationTracker {
 	tracker := new(durationTracker)
 
@@ -295,12 +296,13 @@ func (tracker *durationTracker) toNamedHierarchy(name string) *HierarchicalDurat
 }
 
 type HierarchicalDuration struct {
-	Name string
+	Name     string
 	Duration time.Duration
-	Calls int
+	Calls    int
 
 	Children map[string]*HierarchicalDuration
 }
+
 func newHierarchicalDuration(name string) *HierarchicalDuration {
 	hierarchy := new(HierarchicalDuration)
 
@@ -334,8 +336,8 @@ func (hierarchy *HierarchicalDuration) string(indent int, buffer *bytes.Buffer) 
 	buffer.WriteString(fmt.Sprintf("%s: %v", hierarchy.Name, hierarchy.Duration))
 
 	if hierarchy.Calls != 0 && hierarchy.Calls != 1 {
-		buffer.WriteString(fmt.Sprintf(" [%d x %v]", 
-			hierarchy.Calls, hierarchy.Duration / time.Duration(hierarchy.Calls)))
+		buffer.WriteString(fmt.Sprintf(" [%d x %v]",
+			hierarchy.Calls, hierarchy.Duration/time.Duration(hierarchy.Calls)))
 	}
 
 	buffer.WriteString("\n")
