@@ -15,13 +15,13 @@ func NewSwapMutator(probability float64) *MutatorGeneBase {
 	return mutator
 }
 func (mutator *SwapMutator) MutateCromosome(chrom ChromosomeInterface, ind int) {
-	for {
-		ind2 := rand.Intn(chrom.Genes().Len())
-		if ind == ind2 {
-			continue
-		}
-
-		chrom.Genes().Swap(ind, ind2)
-		break
+	ind2 := mutator.chooseSecondInd(chrom.Genes().Len(), ind)
+	chrom.Genes().Swap(ind, ind2)
+}
+func (mutator *SwapMutator) chooseSecondInd(genesLen, ind int) int {
+	ind2 := rand.Intn(genesLen - 1)
+	if ind2 >= ind {
+		ind2++
 	}
+	return ind2
 }

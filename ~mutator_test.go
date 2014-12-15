@@ -38,6 +38,20 @@ func (s *MutatorSuite) TestMutatorGenesBase_Elitism(c *C) {
 	c.Assert(pop[2].Genes(), DeepEquals, falseGenes)
 }
 
+func (s *MutatorSuite) TestSwapMutator_chooseSecondInd(c *C) {
+	mutator := new(SwapMutator)
+
+	c.Assert(mutator.chooseSecondInd(2, 0), Equals, 1)
+	c.Assert(mutator.chooseSecondInd(2, 1), Equals, 0)
+
+	for i := 0; i < 10; i++ {
+		ind := mutator.chooseSecondInd(3, 1)
+		if ind == 1 {
+			c.Fatalf("Unexpected second index. Exp: [1]. Got: [%d]", ind)
+		}
+	}
+}
+
 func (s *MutatorSuite) TestMutatorIntervalBase_getIntervalLen(c *C) {
 	var mutator *MutatorIntervalBase
 
@@ -119,5 +133,23 @@ func (s *MutatorSuite) TestDisplacementMutator_chooseInsertPoint(c *C) {
 	point = mutator.chooseInsertPoint(6, 2, 5)
 	if point != 0 && point != 1 && point != 6 {
 		c.Fatalf("Unexpected insert point. Exp: [0|1|6]. Got: [%d]", point)
+	}
+}
+
+func (s *MutatorSuite) TestInvertSwapMutator_indexes(c *C) {
+	mutator := new(InvertSwapMutator)
+
+	for i := 0; i < 10; i++ {
+		ind := mutator.chooseFirstInd(5, 2, 4)
+		if ind < 2 || ind > 3 {
+			c.Fatalf("Unexpected first index. Exp: [2;3]. Got: [%d]", ind)
+		}
+	}
+
+	for i := 0; i < 10; i++ {
+		ind := mutator.chooseSecondInd(5, 2, 4)
+		if ind >= 2 && ind <= 3 {
+			c.Fatalf("Unexpected second index. Exp: != [2;3]. Got: [%d]", ind)
+		}
 	}
 }
